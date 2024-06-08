@@ -6,7 +6,7 @@ const BundleAnalyzerPlugin =
 module.exports = {
   mode: 'development',
   entry: {
-    bundle: path.resolve(__dirname, 'src/index.js'),
+    bundle: path.resolve(__dirname, 'src/main.js'),
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -36,7 +36,7 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-env'],
+            presets: [['@babel/preset-env', { targets: 'defaults' }]],
           },
         },
       },
@@ -48,10 +48,9 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'Webpack App',
+      title: 'Battleship',
       filename: 'index.html',
       template: 'src/template.html',
     }),
-    new BundleAnalyzerPlugin(),
   ],
 };
