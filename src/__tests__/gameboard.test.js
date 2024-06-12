@@ -1,8 +1,13 @@
 import Gameboard from '../modules/gameboard';
 
 describe('gameboard', () => {
+  // Reset board after each test block
+  let gameboard;
+  beforeEach(() => {
+    gameboard = new Gameboard(10);
+  });
+
   describe('board', () => {
-    let gameboard = new Gameboard(10);
     it('should have a board property', () => {
       expect(gameboard.board).toBeDefined();
     });
@@ -20,12 +25,6 @@ describe('gameboard', () => {
   });
 
   describe('placeShip', () => {
-    // Reset board after each test block
-    let gameboard;
-    beforeEach(() => {
-      gameboard = new Gameboard(10);
-    });
-
     it('should place a ship with length 1 properly', () => {
       // Test
       let row = 1;
@@ -210,19 +209,6 @@ describe('gameboard', () => {
     });
 
     it('should prevent ships from horizontal overflowing', () => {
-      // Horizontal overflow
-      gameboard.board = [
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      ];
       expect(() => {
         gameboard.placeShip(0, 7, 4, true);
       }).toThrow('Out of bounds!');
@@ -230,11 +216,23 @@ describe('gameboard', () => {
 
     it('should prevent ships from vertical overflowing', () => {
       // Vertical overflowing
-      gameboard.board = [
+
+      expect(() => {
+        gameboard.placeShip(7, 0, 4, false);
+      }).toThrow('Out of bounds!');
+    });
+  });
+
+  describe('receiveAttack', () => {
+    it('records the coordinates of a missed shot', () => {
+      let row = 3;
+      let col = 5;
+      gameboard.receiveAttack(row, col);
+      let expected = [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 'M', 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -242,9 +240,17 @@ describe('gameboard', () => {
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       ];
-      expect(() => {
-        gameboard.placeShip(7, 0, 4, false);
-      }).toThrow('Out of bounds!');
+      expect(gameboard.board).toEqual(expected);
+    });
+
+    it('throws an error if the cell was hit before', () => {
+      let row = 6;
+      let col = 7;
+      gameboard.receiveAttack(row, col);
+      // Attempt to hit the same cell again
+      expect(() => gameboard.receiveAttack(row, col)).toThrow(
+        'This place was already hit before!'
+      );
     });
   });
 });

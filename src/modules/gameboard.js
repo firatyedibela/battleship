@@ -8,6 +8,30 @@ class Gameboard {
       .map(() => Array(size).fill(0));
   }
 
+  placeShip(row, col, length, isHorizontal) {
+    const ship = new Ship(length);
+    if (length === 1) {
+      this.checkIfCellAvailable(row, col);
+      this.board[row][col] = 'S';
+    }
+    // Length more than 1
+    else {
+      this.checkAllCells(row, col, length, isHorizontal);
+      for (let i = 0; i < length; i++) {
+        const currentRow = isHorizontal ? row : row + i;
+        const currentCol = isHorizontal ? col + i : col;
+        this.board[currentRow][currentCol] = 'S';
+      }
+    }
+  }
+
+  receiveAttack(row, col) {
+    if (this.board[row][col] !== 0) {
+      throw new Error('This place was already hit before!');
+    }
+    this.board[row][col] = 'M';
+  }
+
   checkIfCellAvailable(row, col) {
     // Overflow case
     if (row > 9 || col > 9) {
@@ -26,23 +50,6 @@ class Gameboard {
       const currentRow = isHorizontal ? row : row + i;
       const currentCol = isHorizontal ? col + i : col;
       this.checkIfCellAvailable(currentRow, currentCol);
-    }
-  }
-
-  placeShip(row, col, length, isHorizontal) {
-    const ship = new Ship(length);
-    if (length === 1) {
-      this.checkIfCellAvailable(row, col);
-      this.board[row][col] = 'S';
-    }
-    // Length more than 1
-    else {
-      this.checkAllCells(row, col, length, isHorizontal);
-      for (let i = 0; i < length; i++) {
-        const currentRow = isHorizontal ? row : row + i;
-        const currentCol = isHorizontal ? col + i : col;
-        this.board[currentRow][currentCol] = 'S';
-      }
     }
   }
 }
