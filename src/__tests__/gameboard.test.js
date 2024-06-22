@@ -40,11 +40,14 @@ describe('gameboard', () => {
   });
 
   describe('placeShip', () => {
-    it('adds new ship to the ships array', () => {
-      gameboard.placeShip(1, 1, 1, true);
-      gameboard.placeShip(4, 5, 4, false);
-      const length = gameboard.ships.length;
-      expect(length).toBe(2);
+    it('populates fleet array', () => {
+      // Place 4 ships to the board
+      gameboard.placeShip(2, 3, 3, true);
+      gameboard.placeShip(3, 3, 2, false);
+      gameboard.placeShip(0, 0, 2, true);
+      gameboard.placeShip(1, 0, 4, false);
+
+      expect(gameboard.fleet.length).toBe(4);
     });
 
     it('places a ship with length 1 properly', () => {
@@ -139,6 +142,12 @@ describe('gameboard', () => {
       expect(gameboard.board[3][5]).toEqual('M');
     });
 
+    it('records the coordinates of an accurate shot', () => {
+      gameboard.placeShip(0, 0, 2, true);
+      gameboard.receiveAttack(0, 1);
+      expect(gameboard.board[0][1]).toBe('H');
+    });
+
     it('throws an error if the cell was hit before', () => {
       gameboard.receiveAttack(6, 7);
       // Attempt to hit the same cell again
@@ -147,21 +156,36 @@ describe('gameboard', () => {
       );
     });
 
-    it('calls hit method for the correct ship instance', () => {
+    it('sends hit to the correct ship', () => {
       // Place 2 different ships on the board
       gameboard.placeShip(0, 0, 3, true);
       gameboard.placeShip(2, 2, 4, false);
 
       // Hit first ship and check its hit count
       gameboard.receiveAttack(0, 1);
-      expect(gameboard.ships[0].timesHit).toBe(1);
+      expect(gameboard.fleet[0].timesHit).toBe(1);
 
       // Hit first ship again and check its hit count
       gameboard.receiveAttack(0, 0);
-      expect(gameboard.ships[0].timesHit).toBe(2);
+      expect(gameboard.fleet[0].timesHit).toBe(2);
 
       // Second ship did not get hit
-      expect(gameboard.ships[1].timesHit).toBe(0);
+      expect(gameboard.fleet[1].timesHit).toBe(0);
+    });
+
+    it('removes ship from the fleet if the ship has been sunk', () => {
+      // Place 2 different ships on the board
+      gameboard.placeShip(0, 0, 3, true);
+      gameboard.placeShip(2, 2, 4, false);
+
+      const firstShip = gameboard.board[0][0];
+
+      // Sink the firts ship
+      for (let i = 0; i < 3; i++) {
+        gameboard.receiveAttack(0, 0 + i);
+      }
+
+      expect(gameboard.fleet).not.toContain(firstShip);
     });
   });
 });

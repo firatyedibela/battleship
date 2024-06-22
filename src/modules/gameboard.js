@@ -2,8 +2,8 @@ import Ship from '../modules/ship';
 
 class Gameboard {
   constructor(size) {
-    // Ships array containing the board's ships
-    this.ships = [];
+    // Fleet array containing the ships that has been placed to the board
+    this.fleet = [];
 
     // Create board as 2D array
     this.board = Array(size)
@@ -13,13 +13,13 @@ class Gameboard {
 
   placeShip(row, col, length, isHorizontal) {
     const ship = new Ship(length);
-    this.ships.push(ship);
+    this.fleet.push(ship);
 
     if (length === 1) {
       this.checkIfCellAvailable(row, col);
       this.board[row][col] = ship;
     }
-    // Length more than 1
+    // Length > 1
     else {
       this.checkAllCells(row, col, length, isHorizontal);
       for (let i = 0; i < length; i++) {
@@ -30,13 +30,24 @@ class Gameboard {
     }
   }
 
+  removeShipFromFleet(ship) {
+    const index = this.fleet.indexOf(ship);
+    this.fleet.splice(index, 1);
+  }
+
   receiveAttack(row, col) {
+    // Reach the target cell
     const target = this.board[row][col];
 
     // Shot at ship
     if (target instanceof Ship) {
       target.hit();
-      this.board[row][col] === 'H';
+      this.board[row][col] = 'H';
+
+      // If the ship has sunk, call removeShipFromFleet
+      if (target.isSunk()) {
+        this.removeShipFromFleet(target);
+      }
     }
     // Miss shot
     else if (target === 0) {
