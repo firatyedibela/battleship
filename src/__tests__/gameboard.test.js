@@ -17,24 +17,26 @@ describe('gameboard', () => {
     for (let i = 0; i < length; i++) {
       const currentRow = isHorizontal ? row : row + i;
       const currentCol = isHorizontal ? col + i : col;
-      const actual = gameboard.board[currentRow][currentCol];
+      const actual = gameboard.boardForMoves[currentRow][currentCol];
       expect(actual).toBeInstanceOf(Ship);
     }
   };
 
   describe('board', () => {
     it('exists', () => {
-      expect(gameboard.board).toBeDefined();
+      expect(gameboard.boardForMoves).toBeDefined();
     });
 
     it('has Size x Size cells', () => {
       // Test 10x10
-      let length = gameboard.board.length * gameboard.board[0].length;
+      let length =
+        gameboard.boardForMoves.length * gameboard.boardForMoves[0].length;
       expect(length).toBe(100);
 
       // Test 15x15
       gameboard = new Gameboard(15);
-      length = gameboard.board.length * gameboard.board[0].length;
+      length =
+        gameboard.boardForMoves.length * gameboard.boardForMoves[0].length;
       expect(length).toBe(225);
     });
   });
@@ -67,7 +69,7 @@ describe('gameboard', () => {
 
     it('should prevent ships with length 1 from overlapping', () => {
       // board[4][4] is not empty
-      gameboard.board = [
+      gameboard.boardForMoves = [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -86,7 +88,7 @@ describe('gameboard', () => {
 
     it('should prevent ships from horizontal overlapping', () => {
       // Horizontal overlapping, [5][5] is not empty
-      gameboard.board = [
+      gameboard.boardForMoves = [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -105,7 +107,7 @@ describe('gameboard', () => {
 
     it('should prevent ships from vertical overlapping', () => {
       // Vertical overlapping, [5][5] is not empty
-      gameboard.board = [
+      gameboard.boardForMoves = [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -139,13 +141,13 @@ describe('gameboard', () => {
   describe('receiveAttack', () => {
     it('records the coordinates of a missed shot', () => {
       gameboard.receiveAttack(3, 5);
-      expect(gameboard.board[3][5]).toEqual('M');
+      expect(gameboard.boardForMoves[3][5]).toEqual('M');
     });
 
     it('records the coordinates of an accurate shot', () => {
       gameboard.placeShip(0, 0, 2, true);
       gameboard.receiveAttack(0, 1);
-      expect(gameboard.board[0][1]).toBe('H');
+      expect(gameboard.boardForMoves[0][1]).toBe('H');
     });
 
     it('throws an error if the cell was hit before', () => {
@@ -178,7 +180,7 @@ describe('gameboard', () => {
       gameboard.placeShip(0, 0, 3, true);
       gameboard.placeShip(2, 2, 4, false);
 
-      const firstShip = gameboard.board[0][0];
+      const firstShip = gameboard.boardForMoves[0][0];
 
       // Sink the firts ship
       for (let i = 0; i < 3; i++) {

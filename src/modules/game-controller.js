@@ -1,6 +1,6 @@
 import Player from './player';
 import Gameboard from './gameboard';
-import Screen from './ScreenController';
+import Screen from './screen-controller';
 
 class Game {
   static playerOne;
@@ -24,13 +24,25 @@ class Game {
     this.playerTwo.gameBoard.placeShip(2, 0, 2, false);
     this.playerTwo.gameBoard.placeShip(8, 6, 1, true);
 
-    Screen.updateScreen(this.playerOne.board, this.playerTwo.board, this.turn);
+    console.log(this.playerOne.gameBoard.fleet);
+    console.log(this.playerTwo.gameBoard.fleet);
+
+    this.playerTwo.gameBoard.receiveAttack(6, 6);
+    this.playerTwo.gameBoard.receiveAttack(8, 6);
+    this.playerTwo.gameBoard.receiveAttack(5, 3);
+    this.playerTwo.gameBoard.receiveAttack(5, 4);
+    this.playerTwo.gameBoard.receiveAttack(5, 5);
+    this.playerTwo.gameBoard.receiveAttack(5, 6);
+    this.playerTwo.gameBoard.receiveAttack(5, 7);
+    this.playerTwo.gameBoard.receiveAttack(0, 0);
+
+    Screen.updateScreen(this.playerOne, this.playerTwo, this.turn);
   }
 
   static playRound() {
     console.log("Welcome to the Game. Here's the boards");
-    console.table(this.playerOne.board);
-    console.table(this.playerTwo.board);
+    console.table(this.playerOne.boardForMoves);
+    console.table(this.playerTwo.boardForMoves);
   }
 }
 

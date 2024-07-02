@@ -18,18 +18,18 @@ describe('ship', () => {
     });
   });
 
-  describe('isSunk method', () => {
+  describe('isSunken method', () => {
     it('should return true if timesHit is equal to ship length', () => {
       ship.hit();
       ship.hit();
       ship.hit();
-      expect(ship.isSunk()).toBe(true);
+      expect(ship.isSunken()).toBe(true);
     });
 
     it('should return false if timesHit is less than ship length', () => {
       ship.hit();
       ship.hit();
-      expect(ship.isSunk()).toBe(false);
+      expect(ship.isSunken()).toBe(false);
     });
   });
 });

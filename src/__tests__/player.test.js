@@ -5,7 +5,7 @@ describe('player', () => {
   const player1 = new Player();
 
   it('contains its own gameboard', () => {
-    expect(player1.board).toBeInstanceOf(Gameboard);
+    expect(player1.gameBoard).toBeInstanceOf(Gameboard);
   });
   0;
 });

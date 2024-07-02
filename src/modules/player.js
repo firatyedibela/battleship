@@ -5,8 +5,12 @@ class Player {
     this.gameBoard = new Gameboard(10);
   }
 
-  get board() {
-    return this.gameBoard.board;
+  get boardForShips() {
+    return this.gameBoard.boardForShips;
+  }
+
+  get boardForMoves() {
+    return this.gameBoard.boardForMoves;
   }
 }
 

@@ -8,7 +8,7 @@ class Ship {
     this.timesHit += 1;
   }
 
-  isSunk() {
+  isSunken() {
     return this.timesHit === this.length;
   }
 }

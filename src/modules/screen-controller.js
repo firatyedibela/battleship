@@ -1,12 +1,18 @@
 import Ship from './ship';
+import dartSvg from '../assets/dart.svg';
+import dotSvg from '../assets/dot.svg';
 
 class Screen {
   static playerOneBoardHTML = document.querySelector('.playerOneBoard');
   static playerTwoBoardHTML = document.querySelector('.playerTwoBoard');
 
-  static updateScreen(boardOne, boardTwo, turn) {
-    this.renderBoard(boardOne, this.playerOneBoardHTML);
-    this.renderBoard(boardTwo, this.playerTwoBoardHTML);
+  static updateScreen(playerOne, playerTwo, turn) {
+    // Clear first to avoid duplication
+    this.playerOneBoardHTML.innerHTML = '';
+    this.playerTwoBoardHTML.innerHTML = '';
+
+    this.renderBoard(playerOne, this.playerOneBoardHTML);
+    this.renderBoard(playerTwo, this.playerTwoBoardHTML, true);
     this.renderTurn(turn);
   }
 
@@ -17,7 +23,10 @@ class Screen {
     p.textContent = turn === 1 ? 'Your turn!' : "Computer's turn!";
   }
 
-  static renderBoard(referenceBoard, targetContainer) {
+  static renderBoard(player, targetContainer, isComputer = false) {
+    const movesBoard = player.boardForMoves;
+    const referenceBoard = player.boardForShips;
+
     for (let i = 0; i < 11; i++) {
       const tRow = document.createElement('tr');
 
@@ -41,15 +50,30 @@ class Screen {
         }
         // The rest will contain board information (ship, miss shot etc.)
         else {
+          const boardCell = movesBoard[i - 1][j - 1];
+
           const tCell = document.createElement('td');
-          tCell.classList.add = 'shipCell';
+          if (isComputer) {
+            tCell.classList.add('opponent');
+          }
+          tCell.classList.add('ship-cell');
+          tCell.classList.add('empty');
           tCell.dataset['posX'] = j - 1;
           tCell.dataset['posY'] = i - 1;
 
-          if (referenceBoard[i - 1][j - 1] instanceof Ship) {
-            tCell.textContent = 'S';
-          } else {
-            tCell.textContent = referenceBoard[i - 1][j - 1];
+          if (boardCell === 'M') {
+            tCell.innerHTML = `<img class="cell-symbol" src="${dotSvg}"></img>`;
+            tCell.classList.add('missed-shot');
+            tCell.classList.remove('empty');
+          } else if (boardCell === 'H') {
+            tCell.innerHTML = `<img class="cell-symbol" src="${dartSvg}"></img>`;
+            tCell.classList.add('hit');
+            tCell.classList.remove('empty');
+
+            // Checking if the cell is part of a sunken ship
+            if (referenceBoard[i - 1][j - 1].isSunken()) {
+              tCell.classList.add('sunken');
+            }
           }
 
           tRow.appendChild(tCell);
