@@ -19,9 +19,7 @@ module.exports = {
       directory: path.resolve(__dirname, 'dist'),
     },
     open: true,
-    hot: true,
-    compress: true,
-    historyApiFallback: true,
+    watchFiles: ['src/template.html'],
   },
   devtool: 'source-map',
   module: {

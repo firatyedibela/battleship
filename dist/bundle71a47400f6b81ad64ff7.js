@@ -2,6 +2,110 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./src/modules/GameController.js":
+/*!***************************************!*\
+  !*** ./src/modules/GameController.js ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _player__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./player */ "./src/modules/player.js");
+/* harmony import */ var _gameboard__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./gameboard */ "./src/modules/gameboard.js");
+/* harmony import */ var _ScreenController__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ScreenController */ "./src/modules/ScreenController.js");
+
+
+
+class Game {
+  static playerOne;
+  static playerTwo;
+  static turn;
+  static initNewGame() {
+    this.playerOne = new _player__WEBPACK_IMPORTED_MODULE_0__["default"]();
+    this.playerTwo = new _player__WEBPACK_IMPORTED_MODULE_0__["default"]();
+    this.turn = 1;
+    this.playerOne.gameBoard.placeShip(0, 9, 5, false);
+    this.playerOne.gameBoard.placeShip(5, 3, 4, true);
+    this.playerOne.gameBoard.placeShip(0, 0, 3, true);
+    this.playerOne.gameBoard.placeShip(2, 0, 2, false);
+    this.playerOne.gameBoard.placeShip(8, 6, 1, true);
+    this.playerTwo.gameBoard.placeShip(0, 9, 5, false);
+    this.playerTwo.gameBoard.placeShip(5, 3, 4, true);
+    this.playerTwo.gameBoard.placeShip(0, 0, 3, true);
+    this.playerTwo.gameBoard.placeShip(2, 0, 2, false);
+    this.playerTwo.gameBoard.placeShip(8, 6, 1, true);
+    _ScreenController__WEBPACK_IMPORTED_MODULE_2__["default"].updateScreen(this.playerOne.board, this.playerTwo.board, this.turn);
+  }
+  static playRound() {
+    console.log("Welcome to the Game. Here's the boards");
+    console.table(this.playerOne.board);
+    console.table(this.playerTwo.board);
+  }
+}
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Game);
+
+/***/ }),
+
+/***/ "./src/modules/ScreenController.js":
+/*!*****************************************!*\
+  !*** ./src/modules/ScreenController.js ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _ship__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ship */ "./src/modules/ship.js");
+
+class Screen {
+  static playerOneBoardHTML = document.querySelector('.playerOneBoard');
+  static playerTwoBoardHTML = document.querySelector('.playerTwoBoard');
+  static updateScreen(boardOne, boardTwo, turn) {
+    this.renderBoard(boardOne, this.playerOneBoardHTML);
+    this.renderBoard(boardTwo, this.playerTwoBoardHTML);
+  }
+  static renderBoard(referenceBoard, targetContainer) {
+    for (let i = 0; i < 11; i++) {
+      const tRow = document.createElement('tr');
+      for (let j = 0; j < 11; j++) {
+        // First row and column will only contain coordinates
+        if (i === 0 && j === 0) {
+          const tHead = document.createElement('th');
+          tRow.appendChild(tHead);
+        } else if (i === 0) {
+          const tHead = document.createElement('th');
+          tHead.textContent = String.fromCharCode(65 + j - 1);
+          tRow.appendChild(tHead);
+        } else if (j === 0) {
+          const tHead = document.createElement('th');
+          tHead.textContent = `${i}`;
+          tRow.appendChild(tHead);
+        }
+        // The rest will contain board information (ship, miss shot etc.)
+        else {
+          const tCell = document.createElement('td');
+          tCell.classList.add = 'shipCell';
+          tCell.dataset['posX'] = j - 1;
+          tCell.dataset['posY'] = i - 1;
+          if (referenceBoard[i - 1][j - 1] instanceof _ship__WEBPACK_IMPORTED_MODULE_0__["default"]) {
+            tCell.textContent = 'S';
+          } else {
+            tCell.textContent = referenceBoard[i - 1][j - 1];
+          }
+          tRow.appendChild(tCell);
+        }
+      }
+      targetContainer.appendChild(tRow);
+    }
+  }
+}
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Screen);
+
+/***/ }),
+
 /***/ "./src/modules/gameboard.js":
 /*!**********************************!*\
   !*** ./src/modules/gameboard.js ***!
@@ -16,54 +120,101 @@ __webpack_require__.r(__webpack_exports__);
 
 class Gameboard {
   constructor(size) {
+    // Fleet array containing the ships that has been placed to the board
+    this.fleet = [];
+
     // Create board as 2D array
     this.board = Array(size).fill().map(() => Array(size).fill(0));
   }
-  checkIfCellAvailable(row, col) {
-    // Overflow situation
-    if (row > 9 || col > 9) {
-      return false;
-    }
-    // Overlap situation
-    else if (this.board[row][col] && this.board[row][col] !== 0) {
-      return false;
-    }
-    return true;
-  }
   placeShip(row, col, length, isHorizontal) {
     const ship = new _modules_ship__WEBPACK_IMPORTED_MODULE_0__["default"](length);
+    this.fleet.push(ship);
     if (length === 1) {
-      if (this.checkIfCellAvailable(row, col)) {
-        this.board[row][col] = 'S';
-      } else {
-        throw new Error('You can not place it here!');
+      this.checkIfCellAvailable(row, col);
+      this.board[row][col] = ship;
+    }
+    // Length > 1
+    else {
+      this.checkAllCells(row, col, length, isHorizontal);
+      for (let i = 0; i < length; i++) {
+        const currentRow = isHorizontal ? row : row + i;
+        const currentCol = isHorizontal ? col + i : col;
+        this.board[currentRow][currentCol] = ship;
       }
-    } else {
-      if (isHorizontal) {
-        // Check if all cells empty
-        for (let i = 0; i < length; i++) {
-          if (!this.checkIfCellAvailable(row, col + i)) {
-            throw new Error('You can not place it here!');
-          }
-        }
-        for (let i = 0; i < length; i++) {
-          this.board[row][col + i] = 'S';
-        }
-      } else if (!isHorizontal) {
-        // Check if all cells empty
-        for (let i = 0; i < length; i++) {
-          if (!this.checkIfCellAvailable(row + i, col)) {
-            throw new Error('You can not place it here!');
-          }
-        }
-        for (let i = 0; i < length; i++) {
-          this.board[row + i][col] = 'S';
-        }
+    }
+  }
+  removeShipFromFleet(ship) {
+    const index = this.fleet.indexOf(ship);
+    this.fleet.splice(index, 1);
+  }
+  receiveAttack(row, col) {
+    // Reach the target cell
+    const target = this.board[row][col];
+
+    // Shot at ship
+    if (target instanceof _modules_ship__WEBPACK_IMPORTED_MODULE_0__["default"]) {
+      target.hit();
+      this.board[row][col] = 'H';
+
+      // If the ship has sunk, call removeShipFromFleet
+      if (target.isSunk()) {
+        this.removeShipFromFleet(target);
       }
+    }
+    // Miss shot
+    else if (target === 0) {
+      this.board[row][col] = 'M';
+    }
+    // Invalid target
+    else {
+      throw new Error('This place was already hit before!');
+    }
+  }
+  checkIfCellAvailable(row, col) {
+    // Overflow case
+    if (row > 9 || col > 9) {
+      throw new Error('Out of bounds!');
+    }
+    // Overlap case
+    else if (this.board[row][col] !== 0) {
+      throw new Error('Cell already occupied!');
+    }
+  }
+  checkAllCells(row, col, length, isHorizontal) {
+    for (let i = 0; i < length; i++) {
+      // The axis alongh which we're placing the ship remains constant
+      // The other axis increases with each iteration
+      const currentRow = isHorizontal ? row : row + i;
+      const currentCol = isHorizontal ? col + i : col;
+      this.checkIfCellAvailable(currentRow, currentCol);
     }
   }
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Gameboard);
+
+/***/ }),
+
+/***/ "./src/modules/player.js":
+/*!*******************************!*\
+  !*** ./src/modules/player.js ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _gameboard__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./gameboard */ "./src/modules/gameboard.js");
+
+class Player {
+  constructor() {
+    this.gameBoard = new _gameboard__WEBPACK_IMPORTED_MODULE_0__["default"](10);
+  }
+  get board() {
+    return this.gameBoard.board;
+  }
+}
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Player);
 
 /***/ }),
 
@@ -116,12 +267,25 @@ ___CSS_LOADER_EXPORT___.push([module.id, `h1 {
   color: darkblue;
 }
 
-#me {
-  height: 500px;
-  width: 500px;
-  object-fit: fill;
+table {
+  border: 2px solid black;
+  border-collapse: collapse;
 }
-`, "",{"version":3,"sources":["webpack://./src/styles/main.css"],"names":[],"mappings":"AAAA;EACE,eAAe;AACjB;;AAEA;EACE,aAAa;EACb,YAAY;EACZ,gBAAgB;AAClB","sourcesContent":["h1 {\n  color: darkblue;\n}\n\n#me {\n  height: 500px;\n  width: 500px;\n  object-fit: fill;\n}\n"],"sourceRoot":""}]);
+
+td,
+th {
+  height: 40px;
+  width: 40px;
+  text-align: center;
+  font-size: 1.5rem;
+  border: 5px solid black;
+}
+
+.gameboards {
+  display: flex;
+  justify-content: space-around;
+}
+`, "",{"version":3,"sources":["webpack://./src/styles/main.css"],"names":[],"mappings":"AAAA;EACE,eAAe;AACjB;;AAEA;EACE,uBAAuB;EACvB,yBAAyB;AAC3B;;AAEA;;EAEE,YAAY;EACZ,WAAW;EACX,kBAAkB;EAClB,iBAAiB;EACjB,uBAAuB;AACzB;;AAEA;EACE,aAAa;EACb,6BAA6B;AAC/B","sourcesContent":["h1 {\n  color: darkblue;\n}\n\ntable {\n  border: 2px solid black;\n  border-collapse: collapse;\n}\n\ntd,\nth {\n  height: 40px;\n  width: 40px;\n  text-align: center;\n  font-size: 1.5rem;\n  border: 5px solid black;\n}\n\n.gameboards {\n  display: flex;\n  justify-content: space-around;\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -648,10 +812,14 @@ var __webpack_exports__ = {};
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _styles_main_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./styles/main.css */ "./src/styles/main.css");
 /* harmony import */ var _modules_gameboard__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/gameboard */ "./src/modules/gameboard.js");
+/* harmony import */ var _modules_GameController__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/GameController */ "./src/modules/GameController.js");
 
 
+
+_modules_GameController__WEBPACK_IMPORTED_MODULE_2__["default"].initNewGame();
+_modules_GameController__WEBPACK_IMPORTED_MODULE_2__["default"].playRound();
 })();
 
 /******/ })()
 ;
-//# sourceMappingURL=bundleec502ee804982fb9b59c.js.map
+//# sourceMappingURL=bundle71a47400f6b81ad64ff7.js.map

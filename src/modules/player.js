@@ -2,7 +2,11 @@ import Gameboard from './gameboard';
 
 class Player {
   constructor() {
-    this.board = new Gameboard(10);
+    this.gameBoard = new Gameboard(10);
+  }
+
+  get board() {
+    return this.gameBoard.board;
   }
 }
 

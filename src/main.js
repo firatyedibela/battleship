@@ -1,2 +1,6 @@
 import './styles/main.css';
-import './modules/gameboard';
+import Gameboard from './modules/gameboard';
+import Game from './modules/GameController';
+
+Game.initNewGame();
+Game.playRound();

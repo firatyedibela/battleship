@@ -6,7 +6,24 @@
     <title><%= htmlWebpackPlugin.options.title %></title>
   </head>
   <body>
-    <h1>Hello World!</h1>
-    <img id="me" alt="" />
+    <header>
+      <h1>BATTLESHIP</h1>
+    </header>
+    <main class="gameboards">
+      <table class="playerOneBoard board">
+        <caption>
+          Your Board
+        </caption>
+      </table>
+      <table class="playerTwoBoard board">
+        <caption>
+          Opponent's Board
+        </caption>
+      </table>
+    </main>
+    <footer>
+      <p class="informer">Miss shot!</p>
+      <p class="turn"></p>
+    </footer>
   </body>
 </html>
