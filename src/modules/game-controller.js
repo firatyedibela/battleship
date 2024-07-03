@@ -15,14 +15,20 @@ class Game {
     this.playerOne.gameBoard.placeShip(0, 9, 5, false);
     this.playerOne.gameBoard.placeShip(5, 3, 4, true);
     this.playerOne.gameBoard.placeShip(0, 0, 3, true);
+    this.playerOne.gameBoard.placeShip(0, 5, 3, false);
     this.playerOne.gameBoard.placeShip(2, 0, 2, false);
+    this.playerOne.gameBoard.placeShip(7, 8, 2, false);
     this.playerOne.gameBoard.placeShip(8, 6, 1, true);
+    this.playerOne.gameBoard.placeShip(8, 4, 1, true);
 
     this.playerTwo.gameBoard.placeShip(0, 9, 5, false);
     this.playerTwo.gameBoard.placeShip(5, 3, 4, true);
     this.playerTwo.gameBoard.placeShip(0, 0, 3, true);
+    this.playerTwo.gameBoard.placeShip(0, 5, 3, false);
     this.playerTwo.gameBoard.placeShip(2, 0, 2, false);
+    this.playerTwo.gameBoard.placeShip(7, 8, 2, false);
     this.playerTwo.gameBoard.placeShip(8, 6, 1, true);
+    this.playerTwo.gameBoard.placeShip(8, 4, 1, true);
 
     console.log(this.playerOne.gameBoard.fleet);
     console.log(this.playerTwo.gameBoard.fleet);
@@ -36,13 +42,24 @@ class Game {
     this.playerTwo.gameBoard.receiveAttack(5, 7);
     this.playerTwo.gameBoard.receiveAttack(0, 0);
 
+    console.table(this.playerOne.gameBoard.boardForShips);
+    console.table(this.playerTwo.gameBoard.boardForShips);
+
     Screen.updateScreen(this.playerOne, this.playerTwo, this.turn);
   }
 
-  static playRound() {
-    console.log("Welcome to the Game. Here's the boards");
-    console.table(this.playerOne.boardForMoves);
-    console.table(this.playerTwo.boardForMoves);
+  static playRound(row, col) {
+    try {
+      if (this.turn === 1) {
+        this.playerTwo.gameBoard.receiveAttack(row, col);
+      } else {
+        this.playerOne.gameBoard.receiveAttack(row, col);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+
+    Screen.updateScreen(this.playerOne, this.playerTwo, this.turn);
   }
 }
 

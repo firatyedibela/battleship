@@ -1,6 +1,7 @@
 import Ship from './ship';
 import dartSvg from '../assets/dart.svg';
 import dotSvg from '../assets/dot.svg';
+import EventHandlers from './event-handlers';
 
 class Screen {
   static playerOneBoardHTML = document.querySelector('.playerOneBoard');
@@ -53,13 +54,18 @@ class Screen {
           const boardCell = movesBoard[i - 1][j - 1];
 
           const tCell = document.createElement('td');
-          if (isComputer) {
-            tCell.classList.add('opponent');
-          }
+
           tCell.classList.add('ship-cell');
           tCell.classList.add('empty');
           tCell.dataset['posX'] = j - 1;
           tCell.dataset['posY'] = i - 1;
+
+          if (isComputer) {
+            tCell.classList.add('opponent');
+            tCell.addEventListener('click', (e) =>
+              EventHandlers.handleCellClick(e, player)
+            );
+          }
 
           if (boardCell === 'M') {
             tCell.innerHTML = `<img class="cell-symbol" src="${dotSvg}"></img>`;
