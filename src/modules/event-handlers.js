@@ -6,8 +6,7 @@ const EventHandlers = (function () {
     // When a cell is clicked, it renders an image inside it.
     // After that, a click's target is going to be the image.
     // However, posX and posY datas were defined on the cell container element.
-    // So we need that if else block in order to extract data
-    // properly.
+    // So we need to get the data from parent element after img is rendered
     if (e.target.tagName === 'IMG') {
       cell = e.target.parentElement;
     } else {

@@ -52,14 +52,22 @@ class Game {
     try {
       if (this.turn === 1) {
         this.playerTwo.gameBoard.receiveAttack(row, col);
+        this.changeTurn();
       } else {
         this.playerOne.gameBoard.receiveAttack(row, col);
+        this.changeTurn();
       }
     } catch (err) {
       console.log(err);
     }
 
+    console.log(this.turn);
+
     Screen.updateScreen(this.playerOne, this.playerTwo, this.turn);
+  }
+
+  static changeTurn() {
+    this.turn = this.turn === 0 ? 1 : 0;
   }
 }
 
