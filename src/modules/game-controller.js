@@ -1,4 +1,4 @@
-import Player from './player';
+import { Player, Computer } from './player';
 import Gameboard from './gameboard';
 import Screen from './screen-controller';
 
@@ -9,7 +9,7 @@ class Game {
 
   static initNewGame() {
     this.playerOne = new Player();
-    this.playerTwo = new Player();
+    this.playerTwo = new Computer();
     this.turn = 1;
 
     this.playerOne.gameBoard.placeShip(0, 9, 5, false);
@@ -50,24 +50,25 @@ class Game {
 
   static playRound(row, col) {
     try {
-      if (this.turn === 1) {
-        this.playerTwo.gameBoard.receiveAttack(row, col);
+      this.playerTwo.gameBoard.receiveAttack(row, col);
+      this.changeTurn();
+
+      Screen.updateScreen(this.playerOne, this.playerTwo, this.turn);
+
+      // Wait a bit and make the computer play
+      setTimeout(() => {
+        this.playerOne.gameBoard.receiveAttack(...this.playerTwo.makeMove());
         this.changeTurn();
-      } else {
-        this.playerOne.gameBoard.receiveAttack(row, col);
-        this.changeTurn();
-      }
+        Screen.updateScreen(this.playerOne, this.playerTwo, this.turn);
+      }, 2000);
     } catch (err) {
       console.log(err);
     }
-
-    console.log(this.turn);
-
-    Screen.updateScreen(this.playerOne, this.playerTwo, this.turn);
   }
 
   static changeTurn() {
     this.turn = this.turn === 0 ? 1 : 0;
+    Screen.playerTwoBoardHTML.classList.toggle('deactive');
   }
 }
 

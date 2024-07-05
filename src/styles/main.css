@@ -98,3 +98,7 @@ footer {
     rgba(32, 94, 192, 0.808) 5px
   );
 }
+
+.deactive {
+  pointer-events: none;
+}
