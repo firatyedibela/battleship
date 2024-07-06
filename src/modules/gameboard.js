@@ -47,6 +47,7 @@ class Gameboard {
     if (target instanceof Ship) {
       target.hit();
       this.boardForMoves[row][col] = 'H';
+      return true;
 
       // // Remove the ship if it's sunken
       // if (target.isSunken()) {
@@ -56,6 +57,7 @@ class Gameboard {
     // Miss shot
     else if (target === 0) {
       this.boardForMoves[row][col] = 'M';
+      return false;
     }
     // Invalid target
     else {

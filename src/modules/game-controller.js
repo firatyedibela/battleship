@@ -51,17 +51,29 @@ class Game {
 
   static async playRound(row, col) {
     try {
-      this.playerTwo.gameBoard.receiveAttack(row, col);
-      this.changeTurn();
+      // If active player makes a successfull shot, they will continue to play
+      if (this.playerTwo.gameBoard.receiveAttack(row, col)) {
+        Screen.updateScreen(this.playerOne, this.playerTwo, this.turn);
+      } else {
+        this.changeTurn();
+        Screen.updateScreen(this.playerOne, this.playerTwo, this.turn);
 
-      Screen.updateScreen(this.playerOne, this.playerTwo, this.turn);
-
-      // Wait a bit and make the computer play
-      await Utils.delay(500);
-
-      this.playerOne.gameBoard.receiveAttack(...this.playerTwo.makeMove());
-      this.changeTurn();
-      Screen.updateScreen(this.playerOne, this.playerTwo, this.turn);
+        // If active player makes a successfull shot, they will continue to play
+        while (true) {
+          // Wait a bit and make the computer play
+          await Utils.delay(500);
+          if (
+            this.playerOne.gameBoard.receiveAttack(...this.playerTwo.makeMove())
+          ) {
+            Screen.updateScreen(this.playerOne, this.playerTwo, this.turn);
+            continue;
+          } else {
+            this.changeTurn();
+            Screen.updateScreen(this.playerOne, this.playerTwo, this.turn);
+            break;
+          }
+        }
+      }
     } catch (err) {
       console.log(err);
     }
