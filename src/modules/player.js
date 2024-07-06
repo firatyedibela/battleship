@@ -1,4 +1,5 @@
 import Gameboard from './gameboard';
+import Utils from './utils';
 
 export class Player {
   constructor() {

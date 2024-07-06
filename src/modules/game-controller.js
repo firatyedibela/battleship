@@ -1,6 +1,7 @@
 import { Player, Computer } from './player';
 import Gameboard from './gameboard';
 import Screen from './screen-controller';
+import Utils from './utils';
 
 class Game {
   static playerOne;
@@ -48,7 +49,7 @@ class Game {
     Screen.updateScreen(this.playerOne, this.playerTwo, this.turn);
   }
 
-  static playRound(row, col) {
+  static async playRound(row, col) {
     try {
       this.playerTwo.gameBoard.receiveAttack(row, col);
       this.changeTurn();
@@ -56,11 +57,11 @@ class Game {
       Screen.updateScreen(this.playerOne, this.playerTwo, this.turn);
 
       // Wait a bit and make the computer play
-      setTimeout(() => {
-        this.playerOne.gameBoard.receiveAttack(...this.playerTwo.makeMove());
-        this.changeTurn();
-        Screen.updateScreen(this.playerOne, this.playerTwo, this.turn);
-      }, 500);
+      await Utils.delay(500);
+
+      this.playerOne.gameBoard.receiveAttack(...this.playerTwo.makeMove());
+      this.changeTurn();
+      Screen.updateScreen(this.playerOne, this.playerTwo, this.turn);
     } catch (err) {
       console.log(err);
     }
