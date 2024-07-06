@@ -13,7 +13,9 @@ class Screen {
     this.playerTwoBoardHTML.innerHTML = '';
 
     this.renderBoard(playerOne, this.playerOneBoardHTML);
+    this.renderFleet(playerOne, 'one');
     this.renderBoard(playerTwo, this.playerTwoBoardHTML, true);
+    this.renderFleet(playerTwo, 'two');
     this.renderTurn(turn);
   }
 
@@ -88,6 +90,30 @@ class Screen {
 
       targetContainer.appendChild(tRow);
     }
+  }
+
+  static renderFleet(player, playerId) {
+    const fleet = player.gameBoard.fleet;
+
+    // Reset fleet to avoid duplication
+    document.querySelector(`.player-${playerId}-section .fleet`).innerHTML = '';
+
+    fleet.forEach((ship) => {
+      const shipContainer = document.createElement('div');
+      shipContainer.className = 'fleet-ship-container';
+
+      for (let i = 0; i < ship.length; i++) {
+        const shipPart = document.createElement('div');
+        shipPart.className = ship.isSunken()
+          ? 'ship-part part-sunken'
+          : 'ship-part';
+        shipContainer.appendChild(shipPart);
+      }
+
+      document
+        .querySelector(`.player-${playerId}-section .fleet`)
+        .appendChild(shipContainer);
+    });
   }
 }
 

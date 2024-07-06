@@ -10,16 +10,29 @@
       <h1>BATTLESHIP</h1>
     </header>
     <main class="gameboards">
-      <table class="playerOneBoard board">
-        <caption>
-          Your Board
-        </caption>
-      </table>
-      <table class="playerTwoBoard board">
-        <caption>
-          Opponent's Board
-        </caption>
-      </table>
+      <section class="player-one-section">
+        <div class="fleet-container">
+          <div class="fleet-header">Your Fleet</div>
+          <div class="fleet"></div>
+        </div>
+
+        <table class="playerOneBoard board">
+          <caption>
+            Your Board
+          </caption>
+        </table>
+      </section>
+      <section class="player-two-section">
+        <table class="playerTwoBoard board">
+          <caption>
+            Opponent's Board
+          </caption>
+        </table>
+        <div class="fleet-container">
+          <div class="fleet-header">Your Fleet</div>
+          <div class="fleet"></div>
+        </div>
+      </section>
     </main>
     <footer>
       <p class="turn"></p>

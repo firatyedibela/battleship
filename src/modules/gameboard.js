@@ -48,10 +48,10 @@ class Gameboard {
       target.hit();
       this.boardForMoves[row][col] = 'H';
 
-      // Remove the ship if it's sunken
-      if (target.isSunken()) {
-        this.removeShipFromFleet(target);
-      }
+      // // Remove the ship if it's sunken
+      // if (target.isSunken()) {
+      //   this.removeShipFromFleet(target);
+      // }
     }
     // Miss shot
     else if (target === 0) {
@@ -63,10 +63,10 @@ class Gameboard {
     }
   }
 
-  removeShipFromFleet(ship) {
-    const index = this.fleet.indexOf(ship);
-    this.fleet.splice(index, 1);
-  }
+  // removeShipFromFleet(ship) {
+  //   const index = this.fleet.indexOf(ship);
+  //   this.fleet.splice(index, 1);
+  // }
 
   checkIfCellAvailable(row, col) {
     // Overflow case

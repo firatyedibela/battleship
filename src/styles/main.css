@@ -1,3 +1,5 @@
+@import './boards.css';
+
 *,
 *::after,
 *::before {
@@ -15,47 +17,6 @@ body {
   background-color: rgba(59, 131, 246, 0.808);
 }
 
-table {
-  border-collapse: collapse;
-}
-
-caption {
-  caption-side: bottom;
-  margin-top: 20px;
-}
-
-td,
-th {
-  height: 40px;
-  width: 40px;
-  text-align: center;
-  font-size: 1.5rem;
-  border: 1px solid rgb(30 58 138);
-  transition: background-color 150ms;
-}
-
-td.opponent.empty:hover {
-  background-color: rgb(29 78 216);
-  cursor: pointer;
-}
-
-td.opponent.empty:active {
-  background-color: rgb(54, 99, 223);
-  cursor: pointer;
-}
-
-th {
-  border: none;
-  font-weight: normal;
-  font-size: 1rem;
-}
-
-.gameboards {
-  display: flex;
-  justify-content: center;
-  gap: 150px;
-}
-
 header {
   text-align: center;
   font-size: 2rem;
@@ -64,41 +25,59 @@ header {
   color: white;
 }
 
+main {
+  display: flex;
+  justify-content: center;
+  gap: 120px;
+}
+
 footer {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.ship-cell {
-  position: relative;
+.player-one-section,
+.player-two-section {
+  display: flex;
+  gap: 120px;
 }
 
-.ship-cell > img {
-  height: 30px;
-  width: 30px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+.fleet-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.missed-shot {
-  background-color: rgb(255, 43, 43);
+.fleet-header {
+  height: 40px;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
 }
 
-.hit {
-  background-color: greenyellow;
+.fleet {
+  border: 2px solid black;
+  border-radius: 5px;
+  width: 250px;
+  height: 250px;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 20px;
 }
 
-.sunken {
-  background: repeating-linear-gradient(
-    45deg,
-    rgb(6, 6, 48),
-    rgba(32, 94, 192, 0.808) 5px
-  );
+.fleet-ship-container {
+  display: flex;
+  height: 20px;
 }
 
-.deactive {
-  pointer-events: none;
+.ship-part {
+  width: 20px;
+  height: 20px;
+  background-color: blue;
+}
+
+.part-sunken {
+  background-color: red;
 }

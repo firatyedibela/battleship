@@ -60,7 +60,7 @@ class Game {
         this.playerOne.gameBoard.receiveAttack(...this.playerTwo.makeMove());
         this.changeTurn();
         Screen.updateScreen(this.playerOne, this.playerTwo, this.turn);
-      }, 2000);
+      }, 500);
     } catch (err) {
       console.log(err);
     }

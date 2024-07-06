@@ -1,0 +1,67 @@
+table {
+  border-collapse: collapse;
+}
+
+caption {
+  caption-side: bottom;
+  margin-top: 20px;
+}
+
+td,
+th {
+  height: 40px;
+  min-width: 40px;
+  text-align: center;
+  font-size: 1.5rem;
+  border: 1px solid rgb(30 58 138);
+  transition: background-color 150ms;
+}
+
+td.opponent.empty:hover {
+  background-color: rgb(29 78 216);
+  cursor: pointer;
+}
+
+td.opponent.empty:active {
+  background-color: rgb(54, 99, 223);
+  cursor: pointer;
+}
+
+th {
+  border: none;
+  font-weight: normal;
+  font-size: 1rem;
+}
+
+.ship-cell {
+  position: relative;
+}
+
+.ship-cell > img {
+  height: 30px;
+  width: 30px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.missed-shot {
+  background-color: rgb(255, 43, 43);
+}
+
+.hit {
+  background-color: greenyellow;
+}
+
+.sunken {
+  background: repeating-linear-gradient(
+    45deg,
+    rgb(6, 6, 48),
+    rgba(32, 94, 192, 0.808) 5px
+  );
+}
+
+.deactive {
+  pointer-events: none;
+}
