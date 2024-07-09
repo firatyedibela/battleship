@@ -5,9 +5,7 @@ class Gameboard {
     // Fleet array containing the ships that has been placed to the board
     this.fleet = [];
 
-    // Create board as 2D array
-
-    // This board keeps its references to ships
+    // Create board as 2D array, This board keeps its references to ships
     this.boardForShips = Array(size)
       .fill()
       .map(() => Array(size).fill(0));
@@ -16,7 +14,7 @@ class Gameboard {
     // Unlike boardForShips, this board will also contain miss shots and successfull shots
     // Its references to ships will be overwritten with 'H' symbol when a ship gets hit
     // Whenever we add a new ship, we copy from boardForShips
-    this.boardForMoves = this.boardForShips.map((row) => [...row]);
+    this.boardForMoves = [];
   }
 
   placeShip(row, col, length, isHorizontal) {
@@ -40,6 +38,7 @@ class Gameboard {
   }
 
   receiveAttack(row, col) {
+    console.log('HITTING ' + row + ' x ' + col);
     // Reach the target cell
     const target = this.boardForMoves[row][col];
 
@@ -76,7 +75,7 @@ class Gameboard {
       throw new Error('Out of bounds!');
     }
     // Overlap case
-    else if (this.boardForMoves[row][col] !== 0) {
+    else if (this.boardForShips[row][col] !== 0) {
       throw new Error('Cell already occupied!');
     }
   }
