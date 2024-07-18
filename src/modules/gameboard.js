@@ -40,6 +40,22 @@ class Gameboard {
     console.table(this.boardForShips);
   }
 
+  resetBoard() {
+    while (this.fleet.length > 0) {
+      this.fleet.shift();
+    }
+
+    for (let i = 0; i < 10; i++) {
+      for (let j = 0; j < 10; j++) {
+        this.boardForShips[i][j] = 0;
+      }
+    }
+
+    console.log('RESETTED');
+    console.log(this.boardForShips);
+    console.log(this.fleet);
+  }
+
   markAdjacentCells() {
     const directions = [
       { row: -1, col: 0 }, // up
