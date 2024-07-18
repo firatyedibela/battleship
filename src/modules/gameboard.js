@@ -19,7 +19,6 @@ class Gameboard {
 
   placeShip(row, col, length, isHorizontal) {
     const ship = new Ship(length);
-    this.fleet.push(ship);
 
     if (length === 1) {
       this.checkIfCellAvailable(row, col);
@@ -34,7 +33,44 @@ class Gameboard {
         this.boardForShips[currentRow][currentCol] = ship;
       }
     }
+    this.markAdjacentCells();
+    this.fleet.push(ship);
+    console.log(this.fleet);
     this.boardForMoves = this.boardForShips.map((row) => [...row]);
+    console.table(this.boardForShips);
+  }
+
+  markAdjacentCells() {
+    const directions = [
+      { row: -1, col: 0 }, // up
+      { row: 1, col: 0 }, // down
+      { row: 0, col: -1 }, // left
+      { row: 0, col: 1 }, // right
+      { row: -1, col: -1 }, // up-left
+      { row: -1, col: 1 }, // up-right
+      { row: 1, col: -1 }, // down-left
+      { row: 1, col: 1 }, // down-right
+    ];
+
+    // Iterate through every cell on board, check all directions for every cell. If any of the cells adjacent cells contains a Ship, mark the cell as adjacent
+    for (let i = 0; i < 10; i++) {
+      for (let j = 0; j < 10; j++) {
+        // Check only the cell itself doesn't contain a ship
+        if (!(this.boardForShips[i][j] instanceof Ship)) {
+          for (let direction of directions) {
+            const newRow = i + direction.row;
+            const newCol = j + direction.col;
+
+            if (newRow >= 0 && newRow <= 9 && newCol >= 0 && newCol <= 9) {
+              if (this.boardForShips[newRow][newCol] instanceof Ship) {
+                this.boardForShips[i][j] = 'A';
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
   receiveAttack(row, col) {
@@ -75,8 +111,10 @@ class Gameboard {
       throw new Error('Out of bounds!');
     }
     // Overlap case
-    else if (this.boardForShips[row][col] !== 0) {
-      throw new Error('Cell already occupied!');
+    else if (this.boardForShips[row][col] instanceof Ship) {
+      throw new Error('There is already a ship here!');
+    } else if (this.boardForShips[row][col] === 'A') {
+      throw new Error('You can not place ships adjacently.');
     }
   }
 
