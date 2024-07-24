@@ -1,9 +1,8 @@
-import Ship from '../ship';
-import dartSvg from '../../assets/dart.svg';
-import dotSvg from '../../assets/dot.svg';
 import EventHandlers from '../event-handlers';
-import Placement from '../phases/placement';
 import Utils from '../utils';
+import GameOver from './game-over';
+import dotSvg from '../../assets/dot.svg';
+import ferrySvg from '../../assets/ferry.svg';
 
 const Battle = (function () {
   let turn = 1;
@@ -26,6 +25,16 @@ const Battle = (function () {
     renderFleet(playerOne, 'one');
     renderFleet(playerTwo, 'two');
     renderTurn(turn);
+
+    checkForWinner();
+  }
+
+  function checkForWinner() {
+    if (playerOne.gameBoard.checkIfFleetDestroyed()) {
+      GameOver.init(0);
+    } else if (playerTwo.gameBoard.checkIfFleetDestroyed()) {
+      GameOver.init(1);
+    }
   }
 
   function renderBoard(player, targetContainer, isComputer = false) {
@@ -77,8 +86,12 @@ const Battle = (function () {
             tCell.innerHTML = `<img class="cell-symbol" src="${dotSvg}"></img>`;
             tCell.classList.add('missed-shot');
             tCell.classList.remove('empty');
+          } else if (boardCell === 'AR') {
+            tCell.innerHTML = `<img class="cell-symbol" src="${dotSvg}"></img>`;
+            tCell.classList.add('revealed-shot');
+            tCell.classList.remove('empty');
           } else if (boardCell === 'H') {
-            tCell.innerHTML = `<img class="cell-symbol" src="${dartSvg}"></img>`;
+            tCell.innerHTML = `<img class="cell-symbol" src="${ferrySvg}"></img>`;
             tCell.classList.add('hit');
             tCell.classList.remove('empty');
 
@@ -128,8 +141,8 @@ const Battle = (function () {
   function setActiveSection() {
     document.querySelector('.game-section.placement').className =
       'game-section placement';
-    document.querySelector('.game-section.game-on').className =
-      'game-section game-on active';
+    document.querySelector('.game-section.battle').className =
+      'game-section battle active';
     document.querySelector('.game-section.game-over').className =
       'game-section game-over';
   }
@@ -178,6 +191,10 @@ const Battle = (function () {
     } catch (err) {
       console.log(err);
     }
+    console.log(playerTwo.gameBoard.fleet);
+    console.log(playerTwo.gameBoard.fleet);
+    console.table(playerTwo.boardForShips);
+    console.table(playerTwo.boardForMoves);
   }
 
   function changeTurn() {

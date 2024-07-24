@@ -1,4 +1,7 @@
 @import './boards.css';
+@import './placement.css';
+@import './battle.css';
+@import './game-over.css';
 
 *,
 *::after,
@@ -21,63 +24,22 @@ header {
   text-align: center;
   font-size: 2rem;
   letter-spacing: 32px;
-  background-color: rgb(20 83 45);
+  background-color: rgb(12, 60, 71);
   color: white;
 }
 
-main {
+.game-section {
+  display: none;
+}
+
+.game-section.active {
   display: flex;
-  justify-content: center;
-  gap: 120px;
 }
 
-footer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.game-section.blurred {
+  opacity: 0.5;
 }
 
-.player-one-section,
-.player-two-section {
-  display: flex;
-  gap: 120px;
-}
-
-.fleet-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.fleet-header {
-  height: 40px;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-}
-
-.fleet {
-  border: 2px solid black;
-  border-radius: 5px;
-  width: 250px;
-  height: 250px;
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  padding: 20px;
-}
-
-.fleet-ship-container {
-  display: flex;
-  height: 20px;
-}
-
-.ship-part {
-  width: 20px;
-  height: 20px;
-  background-color: blue;
-}
-
-.part-sunken {
-  background-color: red;
+.game-section.blurred {
+  pointer-events: none;
 }

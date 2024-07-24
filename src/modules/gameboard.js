@@ -17,8 +17,13 @@ class Gameboard {
     this.boardForMoves = [];
   }
 
+  checkIfFleetDestroyed() {
+    return this.fleet.every((ship) => ship.isSunken());
+  }
+
   placeShip(row, col, length, isHorizontal) {
-    const ship = new Ship(length);
+    const axis = isHorizontal ? 'x' : 'y';
+    const ship = new Ship(length, axis);
 
     if (length === 1) {
       this.checkIfCellAvailable(row, col);
@@ -33,11 +38,9 @@ class Gameboard {
         this.boardForShips[currentRow][currentCol] = ship;
       }
     }
+    this.boardForMoves = this.boardForShips.map((row) => [...row]);
     this.markAdjacentCells();
     this.fleet.push(ship);
-    console.log(this.fleet);
-    this.boardForMoves = this.boardForShips.map((row) => [...row]);
-    console.table(this.boardForShips);
   }
 
   resetBoard() {
@@ -50,10 +53,6 @@ class Gameboard {
         this.boardForShips[i][j] = 0;
       }
     }
-
-    console.log('RESETTED');
-    console.log(this.boardForShips);
-    console.log(this.fleet);
   }
 
   markAdjacentCells() {
@@ -80,6 +79,14 @@ class Gameboard {
             if (newRow >= 0 && newRow <= 9 && newCol >= 0 && newCol <= 9) {
               if (this.boardForShips[newRow][newCol] instanceof Ship) {
                 this.boardForShips[i][j] = 'A';
+
+                // If ship has sunken, reveal adjacent cells that's not revealed before
+                if (
+                  this.boardForShips[newRow][newCol].isSunken() &&
+                  this.boardForMoves[i][j] === 0
+                ) {
+                  this.boardForMoves[i][j] = 'AR';
+                }
                 break;
               }
             }
@@ -90,7 +97,6 @@ class Gameboard {
   }
 
   receiveAttack(row, col) {
-    console.log('HITTING ' + row + ' x ' + col);
     // Reach the target cell
     const target = this.boardForMoves[row][col];
 
@@ -98,15 +104,12 @@ class Gameboard {
     if (target instanceof Ship) {
       target.hit();
       this.boardForMoves[row][col] = 'H';
+      this.revealDiagonalCells(target, row, col);
+      this.markAdjacentCells();
       return true;
-
-      // // Remove the ship if it's sunken
-      // if (target.isSunken()) {
-      //   this.removeShipFromFleet(target);
-      // }
     }
     // Miss shot
-    else if (target === 0) {
+    else if (target === 0 || target === 'A') {
       this.boardForMoves[row][col] = 'M';
       return false;
     }
@@ -116,10 +119,30 @@ class Gameboard {
     }
   }
 
-  // removeShipFromFleet(ship) {
-  //   const index = this.fleet.indexOf(ship);
-  //   this.fleet.splice(index, 1);
-  // }
+  revealDiagonalCells(target, row, col) {
+    const diagonals = [
+      { row: -1, col: -1 }, // up-left
+      { row: -1, col: 1 }, // up-right
+      { row: 1, col: -1 }, // down-left
+      { row: 1, col: 1 }, // down-right
+    ];
+
+    for (let diagonal of diagonals) {
+      const revealRow = row + diagonal.row;
+      const revealCol = col + diagonal.col;
+
+      if (
+        revealRow >= 0 &&
+        revealRow <= 9 &&
+        revealCol >= 0 &&
+        revealCol <= 9 &&
+        this.boardForShips[revealRow][revealCol] === 'A' &&
+        this.boardForMoves[revealRow][revealCol] === 0
+      ) {
+        this.boardForMoves[revealRow][revealCol] = 'AR';
+      }
+    }
+  }
 
   checkIfCellAvailable(row, col) {
     // Overflow case

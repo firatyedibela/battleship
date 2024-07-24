@@ -1,0 +1,141 @@
+:root {
+  --placement-ship-size: 35px;
+}
+
+.game-section.placement {
+  gap: 200px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.game-section.placement > h2 {
+  position: absolute;
+  top: 110px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.8rem;
+}
+
+.placement-error-message {
+  margin-top: 45px;
+  font-size: 2rem;
+  color: rgb(134, 12, 12);
+}
+
+.game-section.placement > div {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  align-items: center;
+}
+
+.placement-fleet {
+  margin-top: 41px;
+  width: 300px;
+  height: 300px;
+  border: 2px solid black;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.5rem;
+}
+
+.placement-line {
+  display: flex;
+  justify-content: space-between;
+}
+
+.placement-ship {
+  background-color: blue;
+  height: var(--placement-ship-size);
+  border: 1px solid white;
+}
+
+td[data-adjacent='true'] {
+  background-color: white;
+}
+
+td[data-occupied='true'] {
+  background-color: blue;
+}
+
+.placement-ship[data-length='4'] {
+  width: calc(var(--placement-ship-size) * 4);
+}
+
+.placement-ship[data-length='3'] {
+  width: calc(var(--placement-ship-size) * 3);
+}
+
+.placement-ship[data-length='2'] {
+  width: calc(var(--placement-ship-size) * 2);
+}
+
+.placement-ship[data-length='1'] {
+  width: calc(var(--placement-ship-size) * 1);
+}
+
+.start-game-btn {
+  border: none;
+  background-color: rgb(156, 18, 18);
+  color: white;
+  font-weight: bold;
+  font-size: 1.8rem;
+  cursor: pointer;
+  transition: background-color 150ms;
+  padding: 0.9rem;
+  border-radius: 1000px;
+  background-color: rgb(4, 209, 4);
+}
+
+.start-game-btn:hover {
+  background-color: rgb(187, 40, 40);
+}
+
+.board-buttons {
+  display: flex;
+  gap: 20px;
+}
+
+.board-buttons > button {
+  font-size: 1.2rem;
+  width: 140px;
+  border: none;
+  background-color: blueviolet;
+  cursor: pointer;
+  padding: 6px 6px;
+  border-radius: 2000px;
+  color: white;
+  font-weight: bold;
+}
+
+.board-buttons > button:hover {
+  box-shadow: 1px 1px 3px black;
+}
+
+.board-buttons > button:active {
+  transform: translate(2px, 2px);
+}
+
+.shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+  0% {
+    transform: translate(-50%, -50%) translateX(0);
+  }
+  25% {
+    transform: translate(-50%, -50%) translateX(-3px);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateX(3px);
+  }
+  75% {
+    transform: translate(-50%, -50%) translateX(-3px);
+  }
+  100% {
+    transform: translate(-50%, -50%) translateX(0);
+  }
+}

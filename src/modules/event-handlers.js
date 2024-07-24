@@ -1,4 +1,5 @@
 import Game from './game-controller';
+import Battle from './phases/battle';
 
 const EventHandlers = (function () {
   const handleCellClick = function (e, player) {
@@ -13,10 +14,10 @@ const EventHandlers = (function () {
       cell = e.target;
     }
 
-    const row = cell.dataset.posY;
-    const col = cell.dataset.posX;
+    const row = Number(cell.dataset.posY);
+    const col = Number(cell.dataset.posX);
 
-    Game.playRound(row, col);
+    Battle.playRound(row, col);
   };
 
   return {

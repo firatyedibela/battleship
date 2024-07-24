@@ -1,5 +1,6 @@
 class Ship {
-  constructor(length) {
+  constructor(length, axis) {
+    this.axis = axis;
     this.length = length;
     this.timesHit = 0;
   }

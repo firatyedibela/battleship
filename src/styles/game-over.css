@@ -1,0 +1,30 @@
+.game-over-msg {
+  position: absolute;
+  top: 110px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.8rem;
+}
+
+.play-again-btn {
+  position: absolute;
+  top: 160px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.8rem;
+  border: none;
+  background-color: white;
+  border: none;
+  background-color: rgb(156, 18, 18);
+  color: white;
+  font-weight: bold;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: background-color 150ms;
+  padding: 0.5rem;
+  border-radius: 1000px;
+}
+
+.play-again-btn:hover {
+  background-color: rgb(187, 40, 40);
+}

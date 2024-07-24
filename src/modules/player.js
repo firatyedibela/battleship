@@ -20,7 +20,7 @@ export class Computer extends Player {
   constructor() {
     super();
 
-    // Computer keeps track of its former moves to avoid making a move more than once
+    // Computer keeps track of its moves to avoid making the same move more than once
     this.movesBoard = Array(10)
       .fill(null)
       .map((row) => Array(10).fill(null));
@@ -33,17 +33,68 @@ export class Computer extends Player {
     this.followUpStartingPoint = { row: null, col: null };
   }
 
-  makeMove(playerShipsBoard) {
-    console.log('FOLLOW UP MODE: ' + this.followUpMode);
-    console.table(this.movesBoard);
+  makeRandomPlacement() {
+    const placementFleet = [
+      {
+        name: 'Carrier',
+        length: 4,
+        placed: false,
+      },
+    ];
 
+    /* WHILE placementFleet.length > 0
+      1- Choose two random numbers for coordinates (0,9)
+      2- Choose a random number for horizontal/vertical
+      3- Create target cells array containing coordinate objects 
+      4- Based on ship length and axis, populate targetCells array
+      5- Iterate through target cells array and check if corresponding coordinates available
+        If not available
+          Return to 1st step
+        Else if available
+          Call placeship
+          Remove current ship from placementFleet
+    */
+
+    while (placementFleet.length > 0) {
+      const location = Utils.generateRandomCoordinates();
+      const axis = Utils.generateRandomAxis();
+      const targetCells = [];
+      let placementValid = true;
+
+      for (let i = 0; i < placementFleet[0].length; i++) {
+        if (axis === 'horizontal') {
+          targetCells.push({ ...location, col: location.col + i });
+        } else {
+          targetCells.push({ ...location, row: location.row + i });
+        }
+      }
+
+      targetCells.forEach((coordinates) => {
+        const { row, col } = coordinates;
+        if (row > 9 || col > 9 || this.boardForShips[row][col] !== 0) {
+          placementValid = false;
+          return;
+        }
+      });
+
+      if (placementValid) {
+        this.gameBoard.placeShip(
+          location.row,
+          location.col,
+          placementFleet[0].length,
+          axis === 'horizontal'
+        );
+        placementFleet.shift();
+      }
+    }
+  }
+
+  makeMove(playerShipsBoard) {
     if (this.followUpMode) {
       const [row, col] = this.makeFollowUpMove(playerShipsBoard);
       this.movesBoard[row][col] = true;
-      console.table(this.movesBoard);
       return [row, col];
     } else {
-      console.table(this.movesBoard);
       return this.makeRandomMove();
     }
   }
@@ -169,7 +220,6 @@ export class Computer extends Player {
           row = this.followUpStartingPoint.row - 1;
           // Also if there is a ship, set the followUpDirection
           if (playerShipsBoard[row][col] instanceof Ship) {
-            console.log('SETTING DIRECTION TOP');
             this.followUpDirection = 'top';
           }
           this.setLastMove(row, col);
@@ -186,7 +236,6 @@ export class Computer extends Player {
         ) {
           col = this.followUpStartingPoint.col + 1;
           if (playerShipsBoard[row][col] instanceof Ship) {
-            console.log('SETTING DIRECTION RIGHT');
             this.followUpDirection = 'right';
           }
           this.setLastMove(row, col);
@@ -203,7 +252,6 @@ export class Computer extends Player {
         ) {
           row = this.followUpStartingPoint.row + 1;
           if (playerShipsBoard[row][col] instanceof Ship) {
-            console.log('SETTING DIRECTION BOTTOM');
             this.followUpDirection = 'bottom';
           }
           this.setLastMove(row, col);

@@ -1,5 +1,6 @@
 table {
   border-collapse: collapse;
+  height: 100%;
 }
 
 caption {
@@ -7,18 +8,23 @@ caption {
   margin-top: 20px;
 }
 
+td {
+  background-color: rgba(59, 131, 246, 0.808);
+  cursor: pointer;
+}
+
 td,
 th {
-  height: 40px;
-  min-width: 40px;
+  height: 45px;
+  width: 45px;
   text-align: center;
   font-size: 1.5rem;
-  border: 1px solid rgb(30 58 138);
+  border: 1px solid rgb(30, 58, 138);
   transition: background-color 150ms;
 }
 
 td.opponent.empty:hover {
-  background-color: rgb(29 78 216);
+  background-color: rgb(29, 78, 216);
   cursor: pointer;
 }
 

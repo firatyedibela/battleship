@@ -1,15 +1,25 @@
 import Ship from '../ship';
+import game from '../../main';
+import Utils from '../utils';
 import Battle from './battle';
-import GameController from '../game-controller';
 
 const Placement = (function () {
-  const init = function (player) {
+  let placementFleet;
+  let axis = 'horizontal';
+
+  const init = function (player, computer) {
+    placementFleet = [
+      {
+        name: 'Carrier',
+        length: 4,
+        placed: false,
+      },
+    ];
+
     setActiveSection();
-    addEventListeners(player);
+    addEventListeners(player, computer);
     renderScreen(player);
   };
-
-  let axis = 'horizontal';
 
   const renderScreen = function (player) {
     document.querySelector('.placement-error-message').textContent = '';
@@ -17,59 +27,6 @@ const Placement = (function () {
     renderPlacementMessage();
     renderPlacementBoard(player);
   };
-
-  let placementFleet = [
-    {
-      name: 'Carrier',
-      length: 4,
-      placed: false,
-    },
-    {
-      name: 'Battleship',
-      length: 3,
-      placed: false,
-    },
-    {
-      name: 'Battleship',
-      length: 3,
-      placed: false,
-    },
-    {
-      name: 'Cruiser',
-      length: 2,
-      placed: false,
-    },
-    {
-      name: 'Cruiser',
-      length: 2,
-      placed: false,
-    },
-    {
-      name: 'Cruiser',
-      length: 2,
-      placed: false,
-    },
-    {
-      name: 'Destroyer',
-      length: 1,
-      placed: false,
-    },
-    {
-      name: 'Destroyer',
-      length: 1,
-      placed: false,
-    },
-    {
-      name: 'Destroyer',
-      length: 1,
-      placed: false,
-    },
-    {
-      name: 'Destroyer',
-      length: 1,
-      placed: false,
-    },
-  ];
 
   const renderPlacementMessage = function () {
     const message = document.querySelector(
@@ -188,31 +145,11 @@ const Placement = (function () {
     return previewCellsArray;
   };
 
-  const addEventListeners = function (player) {
-    document.querySelector('.start-game-btn').addEventListener('click', () => {
-      console.log('GAME IS STARTING');
-      if (placementFleet.length === 0) {
-        GameController.startBattlePhase();
-      }
-    });
-
-    document.querySelector('.change-axis-btn').addEventListener('click', () => {
-      axis = axis === 'horizontal' ? 'vertical' : 'horizontal';
-      console.log(axis);
-    });
-
-    document
-      .querySelector('.reset-placement-btn')
-      .addEventListener('click', () => {
-        resetPlacement(player);
-      });
-  };
-
   const setActiveSection = function () {
     document.querySelector('.game-section.placement').className =
       'game-section placement active';
-    document.querySelector('.game-section.game-on').className =
-      'game-section game-on';
+    document.querySelector('.game-section.battle').className =
+      'game-section battle';
     document.querySelector('.game-section.game-over').className =
       'game-section game-over';
   };
@@ -343,6 +280,32 @@ const Placement = (function () {
   const handlePlacementError = function (err) {
     const container = document.querySelector('.placement-error-message');
     container.textContent = err.message;
+  };
+
+  const addEventListeners = function (player, computer) {
+    document
+      .querySelector('.start-game-btn')
+      .addEventListener('click', async () => {
+        if (placementFleet.length === 0) {
+          Battle.init(player, computer);
+        } else {
+          const header = document.querySelector('.placement-header');
+          header.classList.add('shake');
+          await Utils.delay(400);
+          header.classList.remove('shake');
+        }
+      });
+
+    document.querySelector('.change-axis-btn').addEventListener('click', () => {
+      axis = axis === 'horizontal' ? 'vertical' : 'horizontal';
+      console.log(axis);
+    });
+
+    document
+      .querySelector('.reset-placement-btn')
+      .addEventListener('click', () => {
+        resetPlacement(player);
+      });
   };
 
   return { init };
