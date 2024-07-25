@@ -1,9 +1,8 @@
-import EventHandlers from '../event-handlers';
 import Utils from '../utils';
 import GameOver from './game-over';
+import Ship from '../ship';
 import dotSvg from '../../assets/dot.svg';
 import ferrySvg from '../../assets/ferry.svg';
-import Ship from '../ship';
 
 const Battle = (function () {
   let turn;
@@ -109,9 +108,7 @@ const Battle = (function () {
 
           if (isComputer) {
             tCell.classList.add('opponent');
-            tCell.addEventListener('click', (e) =>
-              EventHandlers.handleCellClick(e, player)
-            );
+            tCell.addEventListener('click', handleCellClick);
           }
 
           if (!isComputer && referenceBoard[i - 1][j - 1] instanceof Ship) {
@@ -234,6 +231,24 @@ const Battle = (function () {
     } else if (playerTwo.gameBoard.checkIfFleetDestroyed()) {
       GameOver.init(1);
     }
+  }
+
+  function handleCellClick(e) {
+    let cell;
+    // When a cell is clicked, it renders an image inside it.
+    // After that, a click's target is going to be the image.
+    // However, posX and posY datas were defined on the cell container element.
+    // So we need to get the data from parent element after img is rendered
+    if (e.target.tagName === 'IMG') {
+      cell = e.target.parentElement;
+    } else {
+      cell = e.target;
+    }
+
+    const row = Number(cell.dataset.posY);
+    const col = Number(cell.dataset.posX);
+
+    Battle.playRound(row, col);
   }
 
   return { init, playRound };

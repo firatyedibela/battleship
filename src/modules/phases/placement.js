@@ -1,5 +1,4 @@
 import Ship from '../ship';
-import game from '../../main';
 import Utils from '../utils';
 import Battle from './battle';
 
