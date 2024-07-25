@@ -29,15 +29,12 @@ header {
 }
 
 .game-section {
-  display: none;
-}
-
-.game-section.active {
   display: flex;
 }
 
 .game-section.blurred {
   opacity: 0.5;
+  pointer-events: none;
 }
 
 .game-section.blurred {

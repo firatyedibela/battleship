@@ -6,6 +6,8 @@ import Battle from './battle';
 const Placement = (function () {
   let placementFleet;
   let axis = 'horizontal';
+  let playerOne;
+  let playerTwo;
 
   const init = function (player, computer) {
     placementFleet = [
@@ -14,28 +16,134 @@ const Placement = (function () {
         length: 4,
         placed: false,
       },
+      {
+        name: 'Battleship',
+        length: 3,
+        placed: false,
+      },
+      {
+        name: 'Battleship',
+        length: 3,
+        placed: false,
+      },
+      {
+        name: 'Cruiser',
+        length: 2,
+        placed: false,
+      },
+      {
+        name: 'Cruiser',
+        length: 2,
+        placed: false,
+      },
+      {
+        name: 'Cruiser',
+        length: 2,
+        placed: false,
+      },
+      {
+        name: 'Destroyer',
+        length: 1,
+        placed: false,
+      },
+      {
+        name: 'Destroyer',
+        length: 1,
+        placed: false,
+      },
+      {
+        name: 'Destroyer',
+        length: 1,
+        placed: false,
+      },
+      {
+        name: 'Destroyer',
+        length: 1,
+        placed: false,
+      },
     ];
 
-    setActiveSection();
-    addEventListeners(player, computer);
-    renderScreen(player);
+    playerOne = player;
+    playerTwo = computer;
+    renderScreen();
   };
 
-  const renderScreen = function (player) {
-    document.querySelector('.placement-error-message').textContent = '';
+  const renderScreen = function () {
+    renderStructure();
     renderPlacementFleet();
-    renderPlacementMessage();
-    renderPlacementBoard(player);
+    renderPlacementBoard();
   };
 
-  const renderPlacementMessage = function () {
-    const message = document.querySelector(
-      '.game-section.placement.active > h2'
-    );
-    message.textContent = placementFleet[0]
-      ? 'Place your ' + placementFleet[0].name
-      : 'You are ready for battle!';
+  const renderStructure = function () {
+    // Reset header bg color
+    document.querySelector('header').classList.remove('winner');
+    document.querySelector('header').classList.remove('loser');
+
+    document.querySelector('main').innerHTML = `
+      <section class="game-section placement active">
+        <h2 class="placement-header">${
+          placementFleet[0]
+            ? 'Place your ' + placementFleet[0].name
+            : 'You are ready for battle!'
+        }</h2>
+        <h2 class="placement-error-message"></h2>
+        <div>
+          <div class="placement-fleet">
+            <div class="placement-line">
+              <div class="placement-ship" data-length="4"></div>
+            </div>
+            <div class="placement-line">
+              <div class="placement-ship" data-length="3"></div>
+              <div class="placement-ship" data-length="3"></div>
+            </div>
+            <div class="placement-line">
+              <div class="placement-ship" data-length="2"></div>
+              <div class="placement-ship" data-length="2"></div>
+              <div class="placement-ship" data-length="2"></div>
+            </div>
+            <div class="placement-line">
+              <div class="placement-ship" data-length="1"></div>
+              <div class="placement-ship" data-length="1"></div>
+              <div class="placement-ship" data-length="1"></div>
+              <div class="placement-ship" data-length="1"></div>
+            </div>
+          </div>
+          <div class="board-buttons">
+            <button class="change-axis-btn">Change Axis</button>
+            <button class="reset-placement-btn">Reset</button>
+          </div>
+          <button class="start-game-btn">Start Game</button>
+      </div>
+      <table class="placement-board"></table>
+    </section>
+    `;
+
+    document.querySelector('.start-game-btn').addEventListener('click', () => {
+      handleStartGame(playerOne, playerTwo);
+    });
+
+    document.querySelector('.change-axis-btn').addEventListener('click', () => {
+      axis = axis === 'horizontal' ? 'vertical' : 'horizontal';
+      console.log(axis);
+    });
+
+    document
+      .querySelector('.reset-placement-btn')
+      .addEventListener('click', () => {
+        resetPlacement();
+      });
   };
+
+  async function handleStartGame() {
+    if (placementFleet.length === 0) {
+      Battle.init(playerOne, playerTwo);
+    } else {
+      const header = document.querySelector('.placement-header');
+      header.classList.add('shake');
+      await Utils.delay(400);
+      header.classList.remove('shake');
+    }
+  }
 
   const renderPlacementFleet = function () {
     const fleetContainer = document.querySelector('.placement-fleet');
@@ -59,7 +167,7 @@ const Placement = (function () {
     }
   };
 
-  const handlePlaceShip = function (cell, player) {
+  const handlePlaceShip = function (cell) {
     const row = Number(cell.dataset.posY);
     const col = Number(cell.dataset.posX);
 
@@ -68,14 +176,14 @@ const Placement = (function () {
     }
 
     try {
-      player.gameBoard.placeShip(
+      playerOne.gameBoard.placeShip(
         row,
         col,
         placementFleet[0].length,
         axis === 'horizontal'
       );
       placementFleet.shift();
-      renderScreen(player);
+      renderScreen();
     } catch (err) {
       handlePlacementError(err);
     }
@@ -122,9 +230,9 @@ const Placement = (function () {
         if (cell.dataset.occupied) {
           cell.style.backgroundColor = 'blue';
         } else if (cell.dataset.adjacent) {
-          cell.style.backgroundColor = 'white';
+          cell.style.backgroundColor = 'rgba(207, 180, 180, 0.781)';
         } else {
-          cell.style.backgroundColor = 'rgba(59, 131, 246, 0.808)';
+          cell.style.backgroundColor = 'rgba(81, 148, 255, 0.808)';
         }
       }
     });
@@ -145,20 +253,11 @@ const Placement = (function () {
     return previewCellsArray;
   };
 
-  const setActiveSection = function () {
-    document.querySelector('.game-section.placement').className =
-      'game-section placement active';
-    document.querySelector('.game-section.battle').className =
-      'game-section battle';
-    document.querySelector('.game-section.game-over').className =
-      'game-section game-over';
-  };
-
-  const renderPlacementBoard = function (player) {
+  const renderPlacementBoard = function () {
     // Clear first
     document.querySelector('.placement-board').innerHTML = '';
 
-    const shipsBoard = player.gameBoard.boardForShips;
+    const shipsBoard = playerOne.gameBoard.boardForShips;
 
     for (let i = 0; i < 11; i++) {
       const tRow = document.createElement('tr');
@@ -207,7 +306,7 @@ const Placement = (function () {
           }
           tCell.addEventListener('click', (e) => {
             try {
-              handlePlaceShip(e.target, player);
+              handlePlaceShip(e.target, playerOne);
             } catch (err) {
               console.log(err);
             }
@@ -220,8 +319,8 @@ const Placement = (function () {
     }
   };
 
-  const resetPlacement = function (player) {
-    player.gameBoard.resetBoard();
+  const resetPlacement = function () {
+    playerOne.gameBoard.resetBoard();
     placementFleet = [
       {
         name: 'Carrier',
@@ -274,38 +373,12 @@ const Placement = (function () {
         placed: false,
       },
     ];
-    renderScreen(player);
+    renderScreen();
   };
 
   const handlePlacementError = function (err) {
     const container = document.querySelector('.placement-error-message');
     container.textContent = err.message;
-  };
-
-  const addEventListeners = function (player, computer) {
-    document
-      .querySelector('.start-game-btn')
-      .addEventListener('click', async () => {
-        if (placementFleet.length === 0) {
-          Battle.init(player, computer);
-        } else {
-          const header = document.querySelector('.placement-header');
-          header.classList.add('shake');
-          await Utils.delay(400);
-          header.classList.remove('shake');
-        }
-      });
-
-    document.querySelector('.change-axis-btn').addEventListener('click', () => {
-      axis = axis === 'horizontal' ? 'vertical' : 'horizontal';
-      console.log(axis);
-    });
-
-    document
-      .querySelector('.reset-placement-btn')
-      .addEventListener('click', () => {
-        resetPlacement(player);
-      });
   };
 
   return { init };

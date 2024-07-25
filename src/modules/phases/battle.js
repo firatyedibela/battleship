@@ -3,41 +3,73 @@ import Utils from '../utils';
 import GameOver from './game-over';
 import dotSvg from '../../assets/dot.svg';
 import ferrySvg from '../../assets/ferry.svg';
+import Ship from '../ship';
 
 const Battle = (function () {
-  let turn = 1;
-  const playerOneBoardContainer = document.querySelector('.playerOneBoard');
-  const playerTwoBoardContainer = document.querySelector('.playerTwoBoard');
+  let turn;
   let playerOne;
   let playerTwo;
 
   const init = function (player, computer) {
     playerOne = player;
     playerTwo = computer;
+    turn = 1;
 
-    setActiveSection();
-    renderScreen(player, computer);
+    renderScreen();
   };
 
-  function renderScreen(playerOne, playerTwo) {
-    renderBoard(playerOne, playerOneBoardContainer);
-    renderBoard(playerTwo, playerTwoBoardContainer, true);
+  function renderScreen() {
+    renderStructure();
+    renderBoard(playerOne);
+    renderBoard(playerTwo, true);
     renderFleet(playerOne, 'one');
     renderFleet(playerTwo, 'two');
     renderTurn(turn);
 
     checkForWinner();
   }
-
-  function checkForWinner() {
-    if (playerOne.gameBoard.checkIfFleetDestroyed()) {
-      GameOver.init(0);
-    } else if (playerTwo.gameBoard.checkIfFleetDestroyed()) {
-      GameOver.init(1);
-    }
+  function renderStructure() {
+    document.querySelector('main').innerHTML = `
+      <section class="game-section battle">
+        <section class="player-one-section">
+          <div class="fleet-container">
+            <div class="fleet-header">Your Fleet</div>
+            <div class="fleet"></div>
+          </div>
+          <table class="player-one-board board">
+            <caption>
+              Your Board
+            </caption>
+          </table>
+        </section>
+        <section class="player-two-section">
+          <table class="player-two-board board">
+            <caption>
+              Opponent's Board
+            </caption>
+          </table>
+          <div class="fleet-container">
+            <div class="fleet-header">Computer's Fleet</div>
+            <div class="fleet"></div>
+          </div>
+          <p class="turn"></p>
+        </section>
+     </section>
+    `;
   }
 
-  function renderBoard(player, targetContainer, isComputer = false) {
+  function renderBoard(player, isComputer = false) {
+    const playerOneBoardContainer = document.querySelector('.player-one-board');
+    const playerTwoBoardContainer = document.querySelector('.player-two-board');
+    if (turn === 0) {
+      playerTwoBoardContainer.classList.add('deactive');
+    }
+    const targetContainer = isComputer
+      ? playerTwoBoardContainer
+      : playerOneBoardContainer;
+
+    console.log(targetContainer);
+
     targetContainer.innerHTML = '';
 
     const movesBoard = player.boardForMoves;
@@ -80,6 +112,10 @@ const Battle = (function () {
             tCell.addEventListener('click', (e) =>
               EventHandlers.handleCellClick(e, player)
             );
+          }
+
+          if (!isComputer && referenceBoard[i - 1][j - 1] instanceof Ship) {
+            tCell.classList.add('player-ship');
           }
 
           if (boardCell === 'M') {
@@ -138,15 +174,6 @@ const Battle = (function () {
     p.textContent = turn === 1 ? 'Your turn!' : "Computer's turn!";
   }
 
-  function setActiveSection() {
-    document.querySelector('.game-section.placement').className =
-      'game-section placement';
-    document.querySelector('.game-section.battle').className =
-      'game-section battle active';
-    document.querySelector('.game-section.game-over').className =
-      'game-section game-over';
-  }
-
   async function playRound(row, col) {
     try {
       // (PLAYER) If active player makes a successfull shot, they will continue to play
@@ -157,7 +184,7 @@ const Battle = (function () {
         renderScreen(playerOne, playerTwo);
 
         // (COMPUTER) If active player makes a successfull shot, they will continue to play
-        while (true) {
+        while (!playerOne.gameBoard.checkIfFleetDestroyed()) {
           // Wait a bit and make the computer play
           await Utils.delay(750);
 
@@ -199,7 +226,14 @@ const Battle = (function () {
 
   function changeTurn() {
     turn = turn === 0 ? 1 : 0;
-    playerTwoBoardContainer.classList.toggle('deactive');
+  }
+
+  function checkForWinner() {
+    if (playerOne.gameBoard.checkIfFleetDestroyed()) {
+      GameOver.init(0);
+    } else if (playerTwo.gameBoard.checkIfFleetDestroyed()) {
+      GameOver.init(1);
+    }
   }
 
   return { init, playRound };

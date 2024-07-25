@@ -53,7 +53,7 @@
 }
 
 td[data-adjacent='true'] {
-  background-color: white;
+  background-color: rgba(207, 180, 180, 0.781);
 }
 
 td[data-occupied='true'] {
@@ -79,18 +79,22 @@ td[data-occupied='true'] {
 .start-game-btn {
   border: none;
   background-color: rgb(156, 18, 18);
-  color: white;
+  color: rgb(39, 39, 39);
   font-weight: bold;
   font-size: 1.8rem;
   cursor: pointer;
-  transition: background-color 150ms;
-  padding: 0.9rem;
-  border-radius: 1000px;
-  background-color: rgb(4, 209, 4);
+  transition: box-shadow 150ms;
+  padding: 0.8rem;
+  border-radius: 5px;
+  background-color: rgb(5, 216, 5);
 }
 
 .start-game-btn:hover {
-  background-color: rgb(187, 40, 40);
+  box-shadow: 1px 1px 20px rgb(255, 255, 255);
+}
+
+.start-game-btn:active {
+  transform: translate(2px, 2px);
 }
 
 .board-buttons {
@@ -105,12 +109,9 @@ td[data-occupied='true'] {
   background-color: blueviolet;
   cursor: pointer;
   padding: 6px 6px;
-  border-radius: 2000px;
+  border-radius: 5px;
   color: white;
   font-weight: bold;
-}
-
-.board-buttons > button:hover {
   box-shadow: 1px 1px 3px black;
 }
 

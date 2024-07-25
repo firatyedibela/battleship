@@ -14,7 +14,9 @@ class Gameboard {
     // Unlike boardForShips, this board will also contain miss shots and successfull shots
     // Its references to ships will be overwritten with 'H' symbol when a ship gets hit
     // Whenever we add a new ship, we copy from boardForShips
-    this.boardForMoves = [];
+    this.boardForMoves = Array(size)
+      .fill()
+      .map(() => Array(size).fill(0));
   }
 
   checkIfFleetDestroyed() {
@@ -38,7 +40,7 @@ class Gameboard {
         this.boardForShips[currentRow][currentCol] = ship;
       }
     }
-    this.boardForMoves = this.boardForShips.map((row) => [...row]);
+
     this.markAdjacentCells();
     this.fleet.push(ship);
   }
@@ -70,7 +72,7 @@ class Gameboard {
     // Iterate through every cell on board, check all directions for every cell. If any of the cells adjacent cells contains a Ship, mark the cell as adjacent
     for (let i = 0; i < 10; i++) {
       for (let j = 0; j < 10; j++) {
-        // Check only the cell itself doesn't contain a ship
+        // Check only the cells doesn't contain a ship
         if (!(this.boardForShips[i][j] instanceof Ship)) {
           for (let direction of directions) {
             const newRow = i + direction.row;
@@ -83,11 +85,10 @@ class Gameboard {
                 // If ship has sunken, reveal adjacent cells that's not revealed before
                 if (
                   this.boardForShips[newRow][newCol].isSunken() &&
-                  this.boardForMoves[i][j] === 0
+                  this.boardForMoves[i][j] !== 'M'
                 ) {
                   this.boardForMoves[i][j] = 'AR';
                 }
-                break;
               }
             }
           }
@@ -98,13 +99,13 @@ class Gameboard {
 
   receiveAttack(row, col) {
     // Reach the target cell
-    const target = this.boardForMoves[row][col];
+    const target = this.boardForShips[row][col];
 
     // Shot at ship
     if (target instanceof Ship) {
       target.hit();
       this.boardForMoves[row][col] = 'H';
-      this.revealDiagonalCells(target, row, col);
+      this.revealDiagonalCells(row, col);
       this.markAdjacentCells();
       return true;
     }
@@ -119,7 +120,7 @@ class Gameboard {
     }
   }
 
-  revealDiagonalCells(target, row, col) {
+  revealDiagonalCells(row, col) {
     const diagonals = [
       { row: -1, col: -1 }, // up-left
       { row: -1, col: 1 }, // up-right
@@ -137,7 +138,7 @@ class Gameboard {
         revealCol >= 0 &&
         revealCol <= 9 &&
         this.boardForShips[revealRow][revealCol] === 'A' &&
-        this.boardForMoves[revealRow][revealCol] === 0
+        this.boardForMoves[revealRow][revealCol] !== 'M'
       ) {
         this.boardForMoves[revealRow][revealCol] = 'AR';
       }
