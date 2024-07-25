@@ -103,7 +103,7 @@ td[data-occupied='true'] {
 }
 
 .board-buttons > button {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   width: 140px;
   border: none;
   background-color: blueviolet;
