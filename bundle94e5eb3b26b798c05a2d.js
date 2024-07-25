@@ -365,6 +365,7 @@ const Battle = function () {
             tCell.classList.add('opponent');
             if (boardCell === 0) {
               tCell.addEventListener('click', handleCellClick);
+              tCell.classList.add('clickable');
             }
           }
           if (!isComputer && referenceBoard[i - 1][j - 1] instanceof _ship__WEBPACK_IMPORTED_MODULE_2__["default"]) {
@@ -1376,7 +1377,6 @@ caption {
 td {
   background-color: rgba(59, 131, 246, 0.808);
   background-color: rgba(81, 148, 255, 0.808);
-  cursor: pointer;
 }
 
 td,
@@ -1443,7 +1443,7 @@ th {
 .deactive {
   pointer-events: none;
 }
-`, "",{"version":3,"sources":["webpack://./src/styles/boards.css"],"names":[],"mappings":"AAAA;EACE,yBAAyB;EACzB,YAAY;AACd;;AAEA;EACE,oBAAoB;EACpB,gBAAgB;AAClB;;AAEA;EACE,2CAA2C;EAC3C,2CAA2C;EAC3C,eAAe;AACjB;;AAEA;;EAEE,YAAY;EACZ,WAAW;EACX,kBAAkB;EAClB,iBAAiB;EACjB,kCAAkC;EAClC,kCAAkC;AACpC;;AAEA;EACE,kCAAkC;EAClC,eAAe;AACjB;;AAEA;EACE,kCAAkC;EAClC,eAAe;AACjB;;AAEA;EACE,YAAY;EACZ,mBAAmB;EACnB,eAAe;AACjB;;AAEA;EACE,kBAAkB;AACpB;;AAEA;EACE,iCAAiC;AACnC;;AAEA;EACE,YAAY;EACZ,WAAW;EACX,kBAAkB;EAClB,QAAQ;EACR,SAAS;EACT,gCAAgC;AAClC;;AAEA;EACE,kCAAkC;EAClC,gCAAgC;EAChC,aAAa;AACf;;AAEA;EACE,6BAA6B;AAC/B;;AAEA;EACE;;;;GAIC;AACH;;AAEA;EACE,oBAAoB;AACtB","sourcesContent":["table {\n  border-collapse: collapse;\n  height: 100%;\n}\n\ncaption {\n  caption-side: bottom;\n  margin-top: 20px;\n}\n\ntd {\n  background-color: rgba(59, 131, 246, 0.808);\n  background-color: rgba(81, 148, 255, 0.808);\n  cursor: pointer;\n}\n\ntd,\nth {\n  height: 45px;\n  width: 45px;\n  text-align: center;\n  font-size: 1.5rem;\n  border: 1px solid rgb(30, 58, 138);\n  transition: background-color 150ms;\n}\n\ntd.opponent.empty:hover {\n  background-color: rgb(29, 78, 216);\n  cursor: pointer;\n}\n\ntd.opponent.empty:active {\n  background-color: rgb(54, 99, 223);\n  cursor: pointer;\n}\n\nth {\n  border: none;\n  font-weight: normal;\n  font-size: 1rem;\n}\n\n.ship-cell {\n  position: relative;\n}\n\n.ship-cell.empty.player-ship {\n  background-color: rgb(0, 60, 255);\n}\n\n.ship-cell > img {\n  height: 30px;\n  width: 30px;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n\n.missed-shot {\n  background-color: rgb(255, 43, 43);\n  background-color: rgb(187, 1, 1);\n  opacity: 0.82;\n}\n\n.hit {\n  background-color: greenyellow;\n}\n\n.sunken {\n  background: repeating-linear-gradient(\n    45deg,\n    rgb(6, 6, 48),\n    rgba(32, 94, 192, 0.808)\n  );\n}\n\n.deactive {\n  pointer-events: none;\n}\n"],"sourceRoot":""}]);
+`, "",{"version":3,"sources":["webpack://./src/styles/boards.css"],"names":[],"mappings":"AAAA;EACE,yBAAyB;EACzB,YAAY;AACd;;AAEA;EACE,oBAAoB;EACpB,gBAAgB;AAClB;;AAEA;EACE,2CAA2C;EAC3C,2CAA2C;AAC7C;;AAEA;;EAEE,YAAY;EACZ,WAAW;EACX,kBAAkB;EAClB,iBAAiB;EACjB,kCAAkC;EAClC,kCAAkC;AACpC;;AAEA;EACE,kCAAkC;EAClC,eAAe;AACjB;;AAEA;EACE,kCAAkC;EAClC,eAAe;AACjB;;AAEA;EACE,YAAY;EACZ,mBAAmB;EACnB,eAAe;AACjB;;AAEA;EACE,kBAAkB;AACpB;;AAEA;EACE,iCAAiC;AACnC;;AAEA;EACE,YAAY;EACZ,WAAW;EACX,kBAAkB;EAClB,QAAQ;EACR,SAAS;EACT,gCAAgC;AAClC;;AAEA;EACE,kCAAkC;EAClC,gCAAgC;EAChC,aAAa;AACf;;AAEA;EACE,6BAA6B;AAC/B;;AAEA;EACE;;;;GAIC;AACH;;AAEA;EACE,oBAAoB;AACtB","sourcesContent":["table {\n  border-collapse: collapse;\n  height: 100%;\n}\n\ncaption {\n  caption-side: bottom;\n  margin-top: 20px;\n}\n\ntd {\n  background-color: rgba(59, 131, 246, 0.808);\n  background-color: rgba(81, 148, 255, 0.808);\n}\n\ntd,\nth {\n  height: 45px;\n  width: 45px;\n  text-align: center;\n  font-size: 1.5rem;\n  border: 1px solid rgb(30, 58, 138);\n  transition: background-color 150ms;\n}\n\ntd.opponent.empty:hover {\n  background-color: rgb(29, 78, 216);\n  cursor: pointer;\n}\n\ntd.opponent.empty:active {\n  background-color: rgb(54, 99, 223);\n  cursor: pointer;\n}\n\nth {\n  border: none;\n  font-weight: normal;\n  font-size: 1rem;\n}\n\n.ship-cell {\n  position: relative;\n}\n\n.ship-cell.empty.player-ship {\n  background-color: rgb(0, 60, 255);\n}\n\n.ship-cell > img {\n  height: 30px;\n  width: 30px;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n\n.missed-shot {\n  background-color: rgb(255, 43, 43);\n  background-color: rgb(187, 1, 1);\n  opacity: 0.82;\n}\n\n.hit {\n  background-color: greenyellow;\n}\n\n.sunken {\n  background: repeating-linear-gradient(\n    45deg,\n    rgb(6, 6, 48),\n    rgba(32, 94, 192, 0.808)\n  );\n}\n\n.deactive {\n  pointer-events: none;\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -2331,4 +2331,4 @@ module.exports = __webpack_require__.p + "ferry.svg";
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=bundle4f14ae9512b176f9bb00.js.map
+//# sourceMappingURL=bundle94e5eb3b26b798c05a2d.js.map
