@@ -67,8 +67,6 @@ const Battle = (function () {
       ? playerTwoBoardContainer
       : playerOneBoardContainer;
 
-    console.log(targetContainer);
-
     targetContainer.innerHTML = '';
 
     const movesBoard = player.boardForMoves;
@@ -108,7 +106,9 @@ const Battle = (function () {
 
           if (isComputer) {
             tCell.classList.add('opponent');
-            tCell.addEventListener('click', handleCellClick);
+            if (boardCell === 0) {
+              tCell.addEventListener('click', handleCellClick);
+            }
           }
 
           if (!isComputer && referenceBoard[i - 1][j - 1] instanceof Ship) {
