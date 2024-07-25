@@ -330,7 +330,6 @@ const Battle = function () {
       playerTwoBoardContainer.classList.add('deactive');
     }
     const targetContainer = isComputer ? playerTwoBoardContainer : playerOneBoardContainer;
-    console.log(targetContainer);
     targetContainer.innerHTML = '';
     const movesBoard = player.boardForMoves;
     const referenceBoard = player.boardForShips;
@@ -364,7 +363,9 @@ const Battle = function () {
           tCell.dataset['posY'] = i - 1;
           if (isComputer) {
             tCell.classList.add('opponent');
-            tCell.addEventListener('click', handleCellClick);
+            if (boardCell === 0) {
+              tCell.addEventListener('click', handleCellClick);
+            }
           }
           if (!isComputer && referenceBoard[i - 1][j - 1] instanceof _ship__WEBPACK_IMPORTED_MODULE_2__["default"]) {
             tCell.classList.add('player-ship');
@@ -2330,4 +2331,4 @@ module.exports = __webpack_require__.p + "ferry.svg";
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=bundle1b5d9438c7e14465e5de.js.map
+//# sourceMappingURL=bundle4f14ae9512b176f9bb00.js.map
