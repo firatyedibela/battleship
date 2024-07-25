@@ -108,6 +108,7 @@ const Battle = (function () {
             tCell.classList.add('opponent');
             if (boardCell === 0) {
               tCell.addEventListener('click', handleCellClick);
+              tCell.classList.add('clickable');
             }
           }
 
