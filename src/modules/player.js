@@ -38,52 +38,42 @@ export class Computer extends Player {
       {
         name: 'Carrier',
         length: 4,
-        placed: false,
       },
       {
         name: 'Battleship',
         length: 3,
-        placed: false,
       },
       {
         name: 'Battleship',
         length: 3,
-        placed: false,
       },
       {
         name: 'Cruiser',
         length: 2,
-        placed: false,
       },
       {
         name: 'Cruiser',
         length: 2,
-        placed: false,
       },
       {
         name: 'Cruiser',
         length: 2,
-        placed: false,
       },
       {
         name: 'Destroyer',
         length: 1,
-        placed: false,
       },
       {
         name: 'Destroyer',
         length: 1,
-        placed: false,
       },
       {
         name: 'Destroyer',
         length: 1,
-        placed: false,
       },
       {
         name: 'Destroyer',
         length: 1,
-        placed: false,
       },
     ];
 
@@ -134,17 +124,20 @@ export class Computer extends Player {
     }
   }
 
-  makeMove(playerShipsBoard) {
+  makeMove(playerShipsBoard, playerMovesBoard) {
     if (this.followUpMode) {
-      const [row, col] = this.makeFollowUpMove(playerShipsBoard);
+      const [row, col] = this.makeFollowUpMove(
+        playerShipsBoard,
+        playerMovesBoard
+      );
       this.movesBoard[row][col] = true;
       return [row, col];
     } else {
-      return this.makeRandomMove();
+      return this.makeRandomMove(playerMovesBoard);
     }
   }
 
-  makeRandomMove() {
+  makeRandomMove(playerMovesBoard) {
     let row;
     let col;
 
@@ -153,7 +146,7 @@ export class Computer extends Player {
       col = Math.floor(Math.random() * 10);
 
       // Compares current move to former moves, if current move has been made before, it tries again until it finds the unique move
-      if (this.movesBoard[row][col]) {
+      if (this.movesBoard[row][col] || playerMovesBoard[row][col] === 'M') {
         continue;
       } else {
         this.movesBoard[row][col] = true;
@@ -168,7 +161,7 @@ export class Computer extends Player {
     this.lastMove.y = row;
   }
 
-  makeFollowUpMove(playerShipsBoard) {
+  makeFollowUpMove(playerShipsBoard, playerMovesBoard) {
     const lastRow = this.lastMove.y;
     const lastCol = this.lastMove.x;
 
@@ -181,7 +174,7 @@ export class Computer extends Player {
         case 'top':
           row = lastRow - 1;
           // If the next cell of that direction is not shootable, computer should turn to the starting point and keep shooting on the opposite direction (top > bottom, left > right)
-          if (!this.checkIfCellShootable(row, col)) {
+          if (!this.checkIfCellShootable(row, col, playerMovesBoard)) {
             this.followUpDirection = 'bottom';
             row = this.followUpStartingPoint.row + 1;
             col = this.followUpStartingPoint.col;
@@ -199,7 +192,7 @@ export class Computer extends Player {
           break;
         case 'right':
           col = lastCol + 1;
-          if (!this.checkIfCellShootable(row, col)) {
+          if (!this.checkIfCellShootable(row, col, playerMovesBoard)) {
             this.followUpDirection = 'left';
             row = this.followUpStartingPoint.row;
             col = this.followUpStartingPoint.col - 1;
@@ -215,7 +208,7 @@ export class Computer extends Player {
           break;
         case 'bottom':
           row = lastRow + 1;
-          if (!this.checkIfCellShootable(row, col)) {
+          if (!this.checkIfCellShootable(row, col, playerMovesBoard)) {
             this.followUpDirection = 'top';
             row = this.followUpStartingPoint.row - 1;
             col = this.followUpStartingPoint;
@@ -231,7 +224,7 @@ export class Computer extends Player {
           break;
         case 'left':
           col = lastCol - 1;
-          if (!this.checkIfCellShootable(row, col)) {
+          if (!this.checkIfCellShootable(row, col, playerMovesBoard)) {
             this.followUpDirection = 'right';
             row = this.followUpStartingPoint.row;
             col = this.followUpStartingPoint.col + 1;
@@ -259,7 +252,8 @@ export class Computer extends Player {
         if (
           this.checkIfCellShootable(
             this.followUpStartingPoint.row - 1,
-            this.followUpStartingPoint.col
+            this.followUpStartingPoint.col,
+            playerMovesBoard
           )
         ) {
           row = this.followUpStartingPoint.row - 1;
@@ -276,7 +270,8 @@ export class Computer extends Player {
         if (
           this.checkIfCellShootable(
             this.followUpStartingPoint.row,
-            this.followUpStartingPoint.col + 1
+            this.followUpStartingPoint.col + 1,
+            playerMovesBoard
           )
         ) {
           col = this.followUpStartingPoint.col + 1;
@@ -292,7 +287,8 @@ export class Computer extends Player {
         if (
           this.checkIfCellShootable(
             this.followUpStartingPoint.row + 1,
-            this.followUpStartingPoint.col
+            this.followUpStartingPoint.col,
+            playerMovesBoard
           )
         ) {
           row = this.followUpStartingPoint.row + 1;
@@ -308,7 +304,8 @@ export class Computer extends Player {
         if (
           this.checkIfCellShootable(
             this.followUpStartingPoint.row,
-            this.followUpStartingPoint.col - 1
+            this.followUpStartingPoint.col - 1,
+            playerMovesBoard
           )
         ) {
           col = this.followUpStartingPoint.col - 1;
@@ -335,13 +332,17 @@ export class Computer extends Player {
     this.followUpStartingPoint.y = null;
 
     this.followUpDirection = null;
-    this.checkedFollowUpDirections.length = 0;
+    this.checkedFollowUpDirections.length = [];
+    console.log(this.checkedFollowUpDirections);
   }
 
-  checkIfCellShootable(row, col) {
+  checkIfCellShootable(row, col, playerMovesBoard) {
     if (row > 9 || col > 9 || row < 0 || col < 0) {
       return false;
-    } else if (this.movesBoard[row][col] || this.movesBoard[row][col]) {
+    } else if (
+      this.movesBoard[row][col] ||
+      playerMovesBoard[row][col] === 'M'
+    ) {
       return false;
     } else {
       return true;

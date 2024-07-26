@@ -17,6 +17,8 @@ class Gameboard {
     this.boardForMoves = Array(size)
       .fill()
       .map(() => Array(size).fill(0));
+
+    this.lastMissedShot = {};
   }
 
   checkIfFleetDestroyed() {
@@ -87,36 +89,13 @@ class Gameboard {
                   this.boardForShips[newRow][newCol].isSunken() &&
                   this.boardForMoves[i][j] !== 'M'
                 ) {
-                  this.boardForMoves[i][j] = 'AR';
+                  this.boardForMoves[i][j] = 'M';
                 }
               }
             }
           }
         }
       }
-    }
-  }
-
-  receiveAttack(row, col) {
-    // Reach the target cell
-    const target = this.boardForShips[row][col];
-
-    // Shot at ship
-    if (target instanceof Ship) {
-      target.hit();
-      this.boardForMoves[row][col] = 'H';
-      this.revealDiagonalCells(row, col);
-      this.markAdjacentCells();
-      return true;
-    }
-    // Miss shot
-    else if (target === 0 || target === 'A') {
-      this.boardForMoves[row][col] = 'M';
-      return false;
-    }
-    // Invalid target
-    else {
-      throw new Error('This place was already hit before!');
     }
   }
 
@@ -140,8 +119,37 @@ class Gameboard {
         this.boardForShips[revealRow][revealCol] === 'A' &&
         this.boardForMoves[revealRow][revealCol] !== 'M'
       ) {
-        this.boardForMoves[revealRow][revealCol] = 'AR';
+        this.boardForMoves[revealRow][revealCol] = 'M';
+        // Save it to computer's movesBoard in order to prevent random move generator to select these cells
+        if (this.movesBoard) {
+          this.movesBoard[revealRow][revealCol] = true;
+        }
       }
+    }
+  }
+
+  receiveAttack(row, col) {
+    // Reach the target cell
+    const target = this.boardForShips[row][col];
+
+    // Shot at ship
+    if (target instanceof Ship) {
+      target.hit();
+      this.boardForMoves[row][col] = 'H';
+      this.revealDiagonalCells(row, col);
+      this.markAdjacentCells();
+      return true;
+    }
+    // Miss shot
+    else if (target === 0 || target === 'A') {
+      this.boardForMoves[row][col] = 'M';
+      this.lastMissedShot.row = row;
+      this.lastMissedShot.col = col;
+      return false;
+    }
+    // Invalid target
+    else {
+      throw new Error('This place was already hit before!');
     }
   }
 

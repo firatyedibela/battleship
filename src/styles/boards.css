@@ -57,9 +57,13 @@ th {
 }
 
 .missed-shot {
-  background-color: rgb(255, 43, 43);
   background-color: rgb(187, 1, 1);
-  opacity: 0.82;
+  opacity: 0.6;
+}
+
+.last-missed-shot {
+  background-color: rgb(187, 1, 1);
+  opacity: 0.9;
 }
 
 .hit {

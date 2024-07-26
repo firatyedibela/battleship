@@ -69,6 +69,9 @@ const Battle = (function () {
 
     targetContainer.innerHTML = '';
 
+    const lastMissedShotRow = player.gameBoard.lastMissedShot.row;
+    const lastMissedShotCol = player.gameBoard.lastMissedShot.col;
+
     const movesBoard = player.boardForMoves;
     const referenceBoard = player.boardForShips;
 
@@ -120,10 +123,10 @@ const Battle = (function () {
             tCell.innerHTML = `<img class="cell-symbol" src="${dotSvg}"></img>`;
             tCell.classList.add('missed-shot');
             tCell.classList.remove('empty');
-          } else if (boardCell === 'AR') {
-            tCell.innerHTML = `<img class="cell-symbol" src="${dotSvg}"></img>`;
-            tCell.classList.add('revealed-shot');
-            tCell.classList.remove('empty');
+            if (lastMissedShotRow === i - 1 && lastMissedShotCol === j - 1) {
+              tCell.classList.remove('missed-shot');
+              tCell.classList.add('last-missed-shot');
+            }
           } else if (boardCell === 'H') {
             tCell.innerHTML = `<img class="cell-symbol" src="${ferrySvg}"></img>`;
             tCell.classList.add('hit');
@@ -184,11 +187,15 @@ const Battle = (function () {
         // (COMPUTER) If active player makes a successfull shot, they will continue to play
         while (!playerOne.gameBoard.checkIfFleetDestroyed()) {
           // Wait a bit and make the computer play
-          await Utils.delay(750);
+          await Utils.delay(650);
 
           // Computer must know if it made a successful shot so he can follow it up, that's why we're passing player's ships board to computer's makeMove function
           const playerShipsBoard = playerOne.boardForShips;
-          const [pcRow, pcCol] = playerTwo.makeMove(playerShipsBoard);
+          const playerMovesBoard = playerOne.boardForMoves;
+          const [pcRow, pcCol] = playerTwo.makeMove(
+            playerShipsBoard,
+            playerMovesBoard
+          );
           if (playerOne.gameBoard.receiveAttack(pcRow, pcCol)) {
             renderScreen(playerOne, playerTwo);
 
@@ -216,10 +223,8 @@ const Battle = (function () {
     } catch (err) {
       console.log(err);
     }
-    console.log(playerTwo.gameBoard.fleet);
-    console.log(playerTwo.gameBoard.fleet);
-    console.table(playerTwo.boardForShips);
-    console.table(playerTwo.boardForMoves);
+    console.log("PLAYER'S BOARD FOR MOVEs");
+    console.table(playerOne.boardForMoves);
   }
 
   function changeTurn() {

@@ -13,52 +13,42 @@ const Placement = (function () {
       {
         name: 'Carrier',
         length: 4,
-        placed: false,
       },
       {
         name: 'Battleship',
         length: 3,
-        placed: false,
       },
       {
         name: 'Battleship',
         length: 3,
-        placed: false,
       },
       {
         name: 'Cruiser',
         length: 2,
-        placed: false,
       },
       {
         name: 'Cruiser',
         length: 2,
-        placed: false,
       },
       {
         name: 'Cruiser',
         length: 2,
-        placed: false,
       },
       {
         name: 'Destroyer',
         length: 1,
-        placed: false,
       },
       {
         name: 'Destroyer',
         length: 1,
-        placed: false,
       },
       {
         name: 'Destroyer',
         length: 1,
-        placed: false,
       },
       {
         name: 'Destroyer',
         length: 1,
-        placed: false,
       },
     ];
 
@@ -324,52 +314,42 @@ const Placement = (function () {
       {
         name: 'Carrier',
         length: 4,
-        placed: false,
       },
       {
         name: 'Battleship',
         length: 3,
-        placed: false,
       },
       {
         name: 'Battleship',
         length: 3,
-        placed: false,
       },
       {
         name: 'Cruiser',
         length: 2,
-        placed: false,
       },
       {
         name: 'Cruiser',
         length: 2,
-        placed: false,
       },
       {
         name: 'Cruiser',
         length: 2,
-        placed: false,
       },
       {
         name: 'Destroyer',
         length: 1,
-        placed: false,
       },
       {
         name: 'Destroyer',
         length: 1,
-        placed: false,
       },
       {
         name: 'Destroyer',
         length: 1,
-        placed: false,
       },
       {
         name: 'Destroyer',
         length: 1,
-        placed: false,
       },
     ];
     renderScreen();
