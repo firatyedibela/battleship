@@ -79,6 +79,7 @@ class Gameboard {
     // Its references to ships will be overwritten with 'H' symbol when a ship gets hit
     // Whenever we add a new ship, we copy from boardForShips
     this.boardForMoves = Array(size).fill().map(() => Array(size).fill(0));
+    this.lastMissedShot = {};
   }
   checkIfFleetDestroyed() {
     return this.fleet.every(ship => ship.isSunken());
@@ -168,35 +169,13 @@ class Gameboard {
 
                 // If ship has sunken, reveal adjacent cells that's not revealed before
                 if (this.boardForShips[newRow][newCol].isSunken() && this.boardForMoves[i][j] !== 'M') {
-                  this.boardForMoves[i][j] = 'AR';
+                  this.boardForMoves[i][j] = 'M';
                 }
               }
             }
           }
         }
       }
-    }
-  }
-  receiveAttack(row, col) {
-    // Reach the target cell
-    const target = this.boardForShips[row][col];
-
-    // Shot at ship
-    if (target instanceof _modules_ship__WEBPACK_IMPORTED_MODULE_0__["default"]) {
-      target.hit();
-      this.boardForMoves[row][col] = 'H';
-      this.revealDiagonalCells(row, col);
-      this.markAdjacentCells();
-      return true;
-    }
-    // Miss shot
-    else if (target === 0 || target === 'A') {
-      this.boardForMoves[row][col] = 'M';
-      return false;
-    }
-    // Invalid target
-    else {
-      throw new Error('This place was already hit before!');
     }
   }
   revealDiagonalCells(row, col) {
@@ -224,8 +203,36 @@ class Gameboard {
       const revealRow = row + diagonal.row;
       const revealCol = col + diagonal.col;
       if (revealRow >= 0 && revealRow <= 9 && revealCol >= 0 && revealCol <= 9 && this.boardForShips[revealRow][revealCol] === 'A' && this.boardForMoves[revealRow][revealCol] !== 'M') {
-        this.boardForMoves[revealRow][revealCol] = 'AR';
+        this.boardForMoves[revealRow][revealCol] = 'M';
+        // Save it to computer's movesBoard in order to prevent random move generator to select these cells
+        if (this.movesBoard) {
+          this.movesBoard[revealRow][revealCol] = true;
+        }
       }
+    }
+  }
+  receiveAttack(row, col) {
+    // Reach the target cell
+    const target = this.boardForShips[row][col];
+
+    // Shot at ship
+    if (target instanceof _modules_ship__WEBPACK_IMPORTED_MODULE_0__["default"]) {
+      target.hit();
+      this.boardForMoves[row][col] = 'H';
+      this.revealDiagonalCells(row, col);
+      this.markAdjacentCells();
+      return true;
+    }
+    // Miss shot
+    else if (target === 0 || target === 'A') {
+      this.boardForMoves[row][col] = 'M';
+      this.lastMissedShot.row = row;
+      this.lastMissedShot.col = col;
+      return false;
+    }
+    // Invalid target
+    else {
+      throw new Error('This place was already hit before!');
     }
   }
   checkIfCellAvailable(row, col) {
@@ -331,6 +338,8 @@ const Battle = function () {
     }
     const targetContainer = isComputer ? playerTwoBoardContainer : playerOneBoardContainer;
     targetContainer.innerHTML = '';
+    const lastMissedShotRow = player.gameBoard.lastMissedShot.row;
+    const lastMissedShotCol = player.gameBoard.lastMissedShot.col;
     const movesBoard = player.boardForMoves;
     const referenceBoard = player.boardForShips;
     for (let i = 0; i < 11; i++) {
@@ -375,10 +384,10 @@ const Battle = function () {
             tCell.innerHTML = `<img class="cell-symbol" src="${_assets_dot_svg__WEBPACK_IMPORTED_MODULE_3__}"></img>`;
             tCell.classList.add('missed-shot');
             tCell.classList.remove('empty');
-          } else if (boardCell === 'AR') {
-            tCell.innerHTML = `<img class="cell-symbol" src="${_assets_dot_svg__WEBPACK_IMPORTED_MODULE_3__}"></img>`;
-            tCell.classList.add('revealed-shot');
-            tCell.classList.remove('empty');
+            if (lastMissedShotRow === i - 1 && lastMissedShotCol === j - 1) {
+              tCell.classList.remove('missed-shot');
+              tCell.classList.add('last-missed-shot');
+            }
           } else if (boardCell === 'H') {
             tCell.innerHTML = `<img class="cell-symbol" src="${_assets_ferry_svg__WEBPACK_IMPORTED_MODULE_4__}"></img>`;
             tCell.classList.add('hit');
@@ -427,11 +436,12 @@ const Battle = function () {
         // (COMPUTER) If active player makes a successfull shot, they will continue to play
         while (!playerOne.gameBoard.checkIfFleetDestroyed()) {
           // Wait a bit and make the computer play
-          await _utils__WEBPACK_IMPORTED_MODULE_0__["default"].delay(750);
+          await _utils__WEBPACK_IMPORTED_MODULE_0__["default"].delay(650);
 
           // Computer must know if it made a successful shot so he can follow it up, that's why we're passing player's ships board to computer's makeMove function
           const playerShipsBoard = playerOne.boardForShips;
-          const [pcRow, pcCol] = playerTwo.makeMove(playerShipsBoard);
+          const playerMovesBoard = playerOne.boardForMoves;
+          const [pcRow, pcCol] = playerTwo.makeMove(playerShipsBoard, playerMovesBoard);
           if (playerOne.gameBoard.receiveAttack(pcRow, pcCol)) {
             renderScreen(playerOne, playerTwo);
 
@@ -453,10 +463,8 @@ const Battle = function () {
     } catch (err) {
       console.log(err);
     }
-    console.log(playerTwo.gameBoard.fleet);
-    console.log(playerTwo.gameBoard.fleet);
-    console.table(playerTwo.boardForShips);
-    console.table(playerTwo.boardForMoves);
+    console.log("PLAYER'S BOARD FOR MOVEs");
+    console.table(playerOne.boardForMoves);
   }
   function changeTurn() {
     turn = turn === 0 ? 1 : 0;
@@ -567,44 +575,34 @@ const Placement = function () {
   const init = function (player, computer) {
     placementFleet = [{
       name: 'Carrier',
-      length: 4,
-      placed: false
+      length: 4
     }, {
       name: 'Battleship',
-      length: 3,
-      placed: false
+      length: 3
     }, {
       name: 'Battleship',
-      length: 3,
-      placed: false
+      length: 3
     }, {
       name: 'Cruiser',
-      length: 2,
-      placed: false
+      length: 2
     }, {
       name: 'Cruiser',
-      length: 2,
-      placed: false
+      length: 2
     }, {
       name: 'Cruiser',
-      length: 2,
-      placed: false
+      length: 2
     }, {
       name: 'Destroyer',
-      length: 1,
-      placed: false
+      length: 1
     }, {
       name: 'Destroyer',
-      length: 1,
-      placed: false
+      length: 1
     }, {
       name: 'Destroyer',
-      length: 1,
-      placed: false
+      length: 1
     }, {
       name: 'Destroyer',
-      length: 1,
-      placed: false
+      length: 1
     }];
     playerOne = player;
     playerTwo = computer;
@@ -821,44 +819,34 @@ const Placement = function () {
     playerOne.gameBoard.resetBoard();
     placementFleet = [{
       name: 'Carrier',
-      length: 4,
-      placed: false
+      length: 4
     }, {
       name: 'Battleship',
-      length: 3,
-      placed: false
+      length: 3
     }, {
       name: 'Battleship',
-      length: 3,
-      placed: false
+      length: 3
     }, {
       name: 'Cruiser',
-      length: 2,
-      placed: false
+      length: 2
     }, {
       name: 'Cruiser',
-      length: 2,
-      placed: false
+      length: 2
     }, {
       name: 'Cruiser',
-      length: 2,
-      placed: false
+      length: 2
     }, {
       name: 'Destroyer',
-      length: 1,
-      placed: false
+      length: 1
     }, {
       name: 'Destroyer',
-      length: 1,
-      placed: false
+      length: 1
     }, {
       name: 'Destroyer',
-      length: 1,
-      placed: false
+      length: 1
     }, {
       name: 'Destroyer',
-      length: 1,
-      placed: false
+      length: 1
     }];
     renderScreen();
   };
@@ -923,44 +911,34 @@ class Computer extends Player {
   makeRandomPlacement() {
     const placementFleet = [{
       name: 'Carrier',
-      length: 4,
-      placed: false
+      length: 4
     }, {
       name: 'Battleship',
-      length: 3,
-      placed: false
+      length: 3
     }, {
       name: 'Battleship',
-      length: 3,
-      placed: false
+      length: 3
     }, {
       name: 'Cruiser',
-      length: 2,
-      placed: false
+      length: 2
     }, {
       name: 'Cruiser',
-      length: 2,
-      placed: false
+      length: 2
     }, {
       name: 'Cruiser',
-      length: 2,
-      placed: false
+      length: 2
     }, {
       name: 'Destroyer',
-      length: 1,
-      placed: false
+      length: 1
     }, {
       name: 'Destroyer',
-      length: 1,
-      placed: false
+      length: 1
     }, {
       name: 'Destroyer',
-      length: 1,
-      placed: false
+      length: 1
     }, {
       name: 'Destroyer',
-      length: 1,
-      placed: false
+      length: 1
     }];
 
     /* WHILE placementFleet.length > 0
@@ -1010,16 +988,16 @@ class Computer extends Player {
       }
     }
   }
-  makeMove(playerShipsBoard) {
+  makeMove(playerShipsBoard, playerMovesBoard) {
     if (this.followUpMode) {
-      const [row, col] = this.makeFollowUpMove(playerShipsBoard);
+      const [row, col] = this.makeFollowUpMove(playerShipsBoard, playerMovesBoard);
       this.movesBoard[row][col] = true;
       return [row, col];
     } else {
-      return this.makeRandomMove();
+      return this.makeRandomMove(playerMovesBoard);
     }
   }
-  makeRandomMove() {
+  makeRandomMove(playerMovesBoard) {
     let row;
     let col;
     while (true) {
@@ -1027,7 +1005,7 @@ class Computer extends Player {
       col = Math.floor(Math.random() * 10);
 
       // Compares current move to former moves, if current move has been made before, it tries again until it finds the unique move
-      if (this.movesBoard[row][col]) {
+      if (this.movesBoard[row][col] || playerMovesBoard[row][col] === 'M') {
         continue;
       } else {
         this.movesBoard[row][col] = true;
@@ -1040,7 +1018,7 @@ class Computer extends Player {
     this.lastMove.x = col;
     this.lastMove.y = row;
   }
-  makeFollowUpMove(playerShipsBoard) {
+  makeFollowUpMove(playerShipsBoard, playerMovesBoard) {
     const lastRow = this.lastMove.y;
     const lastCol = this.lastMove.x;
     let row = lastRow;
@@ -1052,7 +1030,7 @@ class Computer extends Player {
         case 'top':
           row = lastRow - 1;
           // If the next cell of that direction is not shootable, computer should turn to the starting point and keep shooting on the opposite direction (top > bottom, left > right)
-          if (!this.checkIfCellShootable(row, col)) {
+          if (!this.checkIfCellShootable(row, col, playerMovesBoard)) {
             this.followUpDirection = 'bottom';
             row = this.followUpStartingPoint.row + 1;
             col = this.followUpStartingPoint.col;
@@ -1067,7 +1045,7 @@ class Computer extends Player {
           break;
         case 'right':
           col = lastCol + 1;
-          if (!this.checkIfCellShootable(row, col)) {
+          if (!this.checkIfCellShootable(row, col, playerMovesBoard)) {
             this.followUpDirection = 'left';
             row = this.followUpStartingPoint.row;
             col = this.followUpStartingPoint.col - 1;
@@ -1080,7 +1058,7 @@ class Computer extends Player {
           break;
         case 'bottom':
           row = lastRow + 1;
-          if (!this.checkIfCellShootable(row, col)) {
+          if (!this.checkIfCellShootable(row, col, playerMovesBoard)) {
             this.followUpDirection = 'top';
             row = this.followUpStartingPoint.row - 1;
             col = this.followUpStartingPoint;
@@ -1093,7 +1071,7 @@ class Computer extends Player {
           break;
         case 'left':
           col = lastCol - 1;
-          if (!this.checkIfCellShootable(row, col)) {
+          if (!this.checkIfCellShootable(row, col, playerMovesBoard)) {
             this.followUpDirection = 'right';
             row = this.followUpStartingPoint.row;
             col = this.followUpStartingPoint.col + 1;
@@ -1115,7 +1093,7 @@ class Computer extends Player {
       if (!this.checkedFollowUpDirections.includes('top')) {
         this.checkedFollowUpDirections.push('top');
         // If shootable, return the coordinates
-        if (this.checkIfCellShootable(this.followUpStartingPoint.row - 1, this.followUpStartingPoint.col)) {
+        if (this.checkIfCellShootable(this.followUpStartingPoint.row - 1, this.followUpStartingPoint.col, playerMovesBoard)) {
           row = this.followUpStartingPoint.row - 1;
           // Also if there is a ship, set the followUpDirection
           if (playerShipsBoard[row][col] instanceof _ship__WEBPACK_IMPORTED_MODULE_2__["default"]) {
@@ -1127,7 +1105,7 @@ class Computer extends Player {
       }
       if (!this.checkedFollowUpDirections.includes('right')) {
         this.checkedFollowUpDirections.push('right');
-        if (this.checkIfCellShootable(this.followUpStartingPoint.row, this.followUpStartingPoint.col + 1)) {
+        if (this.checkIfCellShootable(this.followUpStartingPoint.row, this.followUpStartingPoint.col + 1, playerMovesBoard)) {
           col = this.followUpStartingPoint.col + 1;
           if (playerShipsBoard[row][col] instanceof _ship__WEBPACK_IMPORTED_MODULE_2__["default"]) {
             this.followUpDirection = 'right';
@@ -1138,7 +1116,7 @@ class Computer extends Player {
       }
       if (!this.checkedFollowUpDirections.includes('bottom')) {
         this.checkedFollowUpDirections.push('bottom');
-        if (this.checkIfCellShootable(this.followUpStartingPoint.row + 1, this.followUpStartingPoint.col)) {
+        if (this.checkIfCellShootable(this.followUpStartingPoint.row + 1, this.followUpStartingPoint.col, playerMovesBoard)) {
           row = this.followUpStartingPoint.row + 1;
           if (playerShipsBoard[row][col] instanceof _ship__WEBPACK_IMPORTED_MODULE_2__["default"]) {
             this.followUpDirection = 'bottom';
@@ -1149,7 +1127,7 @@ class Computer extends Player {
       }
       if (!this.checkedFollowUpDirections.includes('left')) {
         this.checkedFollowUpDirections.push('left');
-        if (this.checkIfCellShootable(this.followUpStartingPoint.row, this.followUpStartingPoint.col - 1)) {
+        if (this.checkIfCellShootable(this.followUpStartingPoint.row, this.followUpStartingPoint.col - 1, playerMovesBoard)) {
           col = this.followUpStartingPoint.col - 1;
           if (playerShipsBoard[row][col] instanceof _ship__WEBPACK_IMPORTED_MODULE_2__["default"]) {
             console.log('SETTING DIRECTION LEFT');
@@ -1171,12 +1149,13 @@ class Computer extends Player {
     this.followUpStartingPoint.x = null;
     this.followUpStartingPoint.y = null;
     this.followUpDirection = null;
-    this.checkedFollowUpDirections.length = 0;
+    this.checkedFollowUpDirections.length = [];
+    console.log(this.checkedFollowUpDirections);
   }
-  checkIfCellShootable(row, col) {
+  checkIfCellShootable(row, col, playerMovesBoard) {
     if (row > 9 || col > 9 || row < 0 || col < 0) {
       return false;
-    } else if (this.movesBoard[row][col] || this.movesBoard[row][col]) {
+    } else if (this.movesBoard[row][col] || playerMovesBoard[row][col] === 'M') {
       return false;
     } else {
       return true;
@@ -1333,12 +1312,7 @@ ___CSS_LOADER_EXPORT___.push([module.id, `.game-section.battle {
 .part-sunken {
   background-color: red;
 }
-
-.revealed-shot {
-  background-color: rgb(187, 1, 1);
-  opacity: 0.6;
-}
-`, "",{"version":3,"sources":["webpack://./src/styles/battle.css"],"names":[],"mappings":"AAAA;EACE,uBAAuB;EACvB,UAAU;EACV,gBAAgB;AAClB;;AAEA;EACE,kBAAkB;EAClB,WAAW;EACX,SAAS;EACT,2BAA2B;EAC3B,eAAe;EACf,iBAAiB;AACnB;;AAEA;EACE,aAAa;AACf;;AAEA;;EAEE,sBAAsB;EACtB,aAAa;EACb,SAAS;AACX;;AAEA;EACE,aAAa;EACb,sBAAsB;EACtB,mBAAmB;EACnB,eAAe;AACjB;;AAEA;EACE,YAAY;EACZ,iBAAiB;EACjB,aAAa;EACb,mBAAmB;EACnB,iBAAiB;AACnB;;AAEA;EACE,uBAAuB;EACvB,kBAAkB;EAClB,YAAY;EACZ,aAAa;EACb,aAAa;EACb,SAAS;EACT,eAAe;EACf,aAAa;AACf;;AAEA;EACE,aAAa;EACb,YAAY;AACd;;AAEA;EACE,WAAW;EACX,YAAY;EACZ,sBAAsB;AACxB;;AAEA;EACE,qBAAqB;AACvB;;AAEA;EACE,gCAAgC;EAChC,YAAY;AACd","sourcesContent":[".game-section.battle {\n  justify-content: center;\n  gap: 120px;\n  margin-top: 30px;\n}\n\n.turn {\n  position: absolute;\n  bottom: 15%;\n  left: 50%;\n  transform: translateX(-50%);\n  font-size: 2rem;\n  font-weight: bold;\n}\n\n.game-section.battle.active.blurred .turn {\n  display: none;\n}\n\n.player-one-section,\n.player-two-section {\n  min-width: fit-content;\n  display: flex;\n  gap: 60px;\n}\n\n.fleet-container {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  margin-top: 5px;\n}\n\n.fleet-header {\n  height: 40px;\n  font-size: 1.3rem;\n  display: flex;\n  align-items: center;\n  font-weight: bold;\n}\n\n.fleet {\n  border: 2px solid black;\n  border-radius: 5px;\n  width: 250px;\n  height: 250px;\n  display: flex;\n  gap: 20px;\n  flex-wrap: wrap;\n  padding: 25px;\n}\n\n.fleet-ship-container {\n  display: flex;\n  height: 20px;\n}\n\n.ship-part {\n  width: 20px;\n  height: 20px;\n  background-color: blue;\n}\n\n.part-sunken {\n  background-color: red;\n}\n\n.revealed-shot {\n  background-color: rgb(187, 1, 1);\n  opacity: 0.6;\n}\n"],"sourceRoot":""}]);
+`, "",{"version":3,"sources":["webpack://./src/styles/battle.css"],"names":[],"mappings":"AAAA;EACE,uBAAuB;EACvB,UAAU;EACV,gBAAgB;AAClB;;AAEA;EACE,kBAAkB;EAClB,WAAW;EACX,SAAS;EACT,2BAA2B;EAC3B,eAAe;EACf,iBAAiB;AACnB;;AAEA;EACE,aAAa;AACf;;AAEA;;EAEE,sBAAsB;EACtB,aAAa;EACb,SAAS;AACX;;AAEA;EACE,aAAa;EACb,sBAAsB;EACtB,mBAAmB;EACnB,eAAe;AACjB;;AAEA;EACE,YAAY;EACZ,iBAAiB;EACjB,aAAa;EACb,mBAAmB;EACnB,iBAAiB;AACnB;;AAEA;EACE,uBAAuB;EACvB,kBAAkB;EAClB,YAAY;EACZ,aAAa;EACb,aAAa;EACb,SAAS;EACT,eAAe;EACf,aAAa;AACf;;AAEA;EACE,aAAa;EACb,YAAY;AACd;;AAEA;EACE,WAAW;EACX,YAAY;EACZ,sBAAsB;AACxB;;AAEA;EACE,qBAAqB;AACvB","sourcesContent":[".game-section.battle {\n  justify-content: center;\n  gap: 120px;\n  margin-top: 30px;\n}\n\n.turn {\n  position: absolute;\n  bottom: 15%;\n  left: 50%;\n  transform: translateX(-50%);\n  font-size: 2rem;\n  font-weight: bold;\n}\n\n.game-section.battle.active.blurred .turn {\n  display: none;\n}\n\n.player-one-section,\n.player-two-section {\n  min-width: fit-content;\n  display: flex;\n  gap: 60px;\n}\n\n.fleet-container {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  margin-top: 5px;\n}\n\n.fleet-header {\n  height: 40px;\n  font-size: 1.3rem;\n  display: flex;\n  align-items: center;\n  font-weight: bold;\n}\n\n.fleet {\n  border: 2px solid black;\n  border-radius: 5px;\n  width: 250px;\n  height: 250px;\n  display: flex;\n  gap: 20px;\n  flex-wrap: wrap;\n  padding: 25px;\n}\n\n.fleet-ship-container {\n  display: flex;\n  height: 20px;\n}\n\n.ship-part {\n  width: 20px;\n  height: 20px;\n  background-color: blue;\n}\n\n.part-sunken {\n  background-color: red;\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -1423,9 +1397,13 @@ th {
 }
 
 .missed-shot {
-  background-color: rgb(255, 43, 43);
   background-color: rgb(187, 1, 1);
-  opacity: 0.82;
+  opacity: 0.6;
+}
+
+.last-missed-shot {
+  background-color: rgb(187, 1, 1);
+  opacity: 0.9;
 }
 
 .hit {
@@ -1443,7 +1421,7 @@ th {
 .deactive {
   pointer-events: none;
 }
-`, "",{"version":3,"sources":["webpack://./src/styles/boards.css"],"names":[],"mappings":"AAAA;EACE,yBAAyB;EACzB,YAAY;AACd;;AAEA;EACE,oBAAoB;EACpB,gBAAgB;AAClB;;AAEA;EACE,2CAA2C;EAC3C,2CAA2C;AAC7C;;AAEA;;EAEE,YAAY;EACZ,WAAW;EACX,kBAAkB;EAClB,iBAAiB;EACjB,kCAAkC;EAClC,kCAAkC;AACpC;;AAEA;EACE,kCAAkC;EAClC,eAAe;AACjB;;AAEA;EACE,kCAAkC;EAClC,eAAe;AACjB;;AAEA;EACE,YAAY;EACZ,mBAAmB;EACnB,eAAe;AACjB;;AAEA;EACE,kBAAkB;AACpB;;AAEA;EACE,iCAAiC;AACnC;;AAEA;EACE,YAAY;EACZ,WAAW;EACX,kBAAkB;EAClB,QAAQ;EACR,SAAS;EACT,gCAAgC;AAClC;;AAEA;EACE,kCAAkC;EAClC,gCAAgC;EAChC,aAAa;AACf;;AAEA;EACE,6BAA6B;AAC/B;;AAEA;EACE;;;;GAIC;AACH;;AAEA;EACE,oBAAoB;AACtB","sourcesContent":["table {\n  border-collapse: collapse;\n  height: 100%;\n}\n\ncaption {\n  caption-side: bottom;\n  margin-top: 20px;\n}\n\ntd {\n  background-color: rgba(59, 131, 246, 0.808);\n  background-color: rgba(81, 148, 255, 0.808);\n}\n\ntd,\nth {\n  height: 45px;\n  width: 45px;\n  text-align: center;\n  font-size: 1.5rem;\n  border: 1px solid rgb(30, 58, 138);\n  transition: background-color 150ms;\n}\n\ntd.opponent.empty:hover {\n  background-color: rgb(29, 78, 216);\n  cursor: pointer;\n}\n\ntd.opponent.empty:active {\n  background-color: rgb(54, 99, 223);\n  cursor: pointer;\n}\n\nth {\n  border: none;\n  font-weight: normal;\n  font-size: 1rem;\n}\n\n.ship-cell {\n  position: relative;\n}\n\n.ship-cell.empty.player-ship {\n  background-color: rgb(0, 60, 255);\n}\n\n.ship-cell > img {\n  height: 30px;\n  width: 30px;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n\n.missed-shot {\n  background-color: rgb(255, 43, 43);\n  background-color: rgb(187, 1, 1);\n  opacity: 0.82;\n}\n\n.hit {\n  background-color: greenyellow;\n}\n\n.sunken {\n  background: repeating-linear-gradient(\n    45deg,\n    rgb(6, 6, 48),\n    rgba(32, 94, 192, 0.808)\n  );\n}\n\n.deactive {\n  pointer-events: none;\n}\n"],"sourceRoot":""}]);
+`, "",{"version":3,"sources":["webpack://./src/styles/boards.css"],"names":[],"mappings":"AAAA;EACE,yBAAyB;EACzB,YAAY;AACd;;AAEA;EACE,oBAAoB;EACpB,gBAAgB;AAClB;;AAEA;EACE,2CAA2C;EAC3C,2CAA2C;AAC7C;;AAEA;;EAEE,YAAY;EACZ,WAAW;EACX,kBAAkB;EAClB,iBAAiB;EACjB,kCAAkC;EAClC,kCAAkC;AACpC;;AAEA;EACE,kCAAkC;EAClC,eAAe;AACjB;;AAEA;EACE,kCAAkC;EAClC,eAAe;AACjB;;AAEA;EACE,YAAY;EACZ,mBAAmB;EACnB,eAAe;AACjB;;AAEA;EACE,kBAAkB;AACpB;;AAEA;EACE,iCAAiC;AACnC;;AAEA;EACE,YAAY;EACZ,WAAW;EACX,kBAAkB;EAClB,QAAQ;EACR,SAAS;EACT,gCAAgC;AAClC;;AAEA;EACE,gCAAgC;EAChC,YAAY;AACd;;AAEA;EACE,gCAAgC;EAChC,YAAY;AACd;;AAEA;EACE,6BAA6B;AAC/B;;AAEA;EACE;;;;GAIC;AACH;;AAEA;EACE,oBAAoB;AACtB","sourcesContent":["table {\n  border-collapse: collapse;\n  height: 100%;\n}\n\ncaption {\n  caption-side: bottom;\n  margin-top: 20px;\n}\n\ntd {\n  background-color: rgba(59, 131, 246, 0.808);\n  background-color: rgba(81, 148, 255, 0.808);\n}\n\ntd,\nth {\n  height: 45px;\n  width: 45px;\n  text-align: center;\n  font-size: 1.5rem;\n  border: 1px solid rgb(30, 58, 138);\n  transition: background-color 150ms;\n}\n\ntd.opponent.empty:hover {\n  background-color: rgb(29, 78, 216);\n  cursor: pointer;\n}\n\ntd.opponent.empty:active {\n  background-color: rgb(54, 99, 223);\n  cursor: pointer;\n}\n\nth {\n  border: none;\n  font-weight: normal;\n  font-size: 1rem;\n}\n\n.ship-cell {\n  position: relative;\n}\n\n.ship-cell.empty.player-ship {\n  background-color: rgb(0, 60, 255);\n}\n\n.ship-cell > img {\n  height: 30px;\n  width: 30px;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n\n.missed-shot {\n  background-color: rgb(187, 1, 1);\n  opacity: 0.6;\n}\n\n.last-missed-shot {\n  background-color: rgb(187, 1, 1);\n  opacity: 0.9;\n}\n\n.hit {\n  background-color: greenyellow;\n}\n\n.sunken {\n  background: repeating-linear-gradient(\n    45deg,\n    rgb(6, 6, 48),\n    rgba(32, 94, 192, 0.808)\n  );\n}\n\n.deactive {\n  pointer-events: none;\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -2331,4 +2309,4 @@ module.exports = __webpack_require__.p + "ferry.svg";
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=bundle94e5eb3b26b798c05a2d.js.map
+//# sourceMappingURL=bundleca05694eb0a23d2501fe.js.map
